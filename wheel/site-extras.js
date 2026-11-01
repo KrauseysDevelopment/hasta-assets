@@ -120,6 +120,9 @@
   var OPT_COLOR=['Color','Colour'], OPT_SIZE='Size', HEADING='HASTA COLOR SELECTIONS', LINES_KEY='hastaOrderLines';
   var ADULT=['5','6','7','8','9','10','11','12'], KIDS=['11','12','13','1','2','3'];
   var ALIAS={'Grey / Tan':'Tan'}, SLUG={'Tan':'grey-tan'};
+  // Pair prices (Zach, 2026-11-01). The cart charges whatever Retail says; these are only for display.
+  // Retail: Sole - Adult $30, Sole - Kids $25, both strap bins $0. Change both together.
+  var PRICE={Adult:30,Kids:25};
   var PHOTO='https://cdn.jsdelivr.net/gh/KrauseysDevelopment/hasta-assets@f1e48a4fd6661d55ea06467f7096fb5511c1f87c/combos/';
   var BIN_IDS=[BINS.soleAdult,BINS.soleKids,BINS.strapAdult,BINS.strapKids];
   function slug(n){return SLUG[n]||n.toLowerCase().replace(/[^a-z]+/g,'-').replace(/^-|-$/g,'')}
@@ -187,6 +190,9 @@
   '.hfb__step{display:inline-flex;align-items:center;margin-top:8px;border:2px solid rgba(14,14,17,.12);border-radius:999px;overflow:hidden}'+
   '.hfb__step button{width:32px;height:30px;border:0;background:#fff;font-size:1.1rem;font-weight:800;cursor:pointer;color:#0E0E11;font-family:inherit}.hfb__step button:hover:not([disabled]){background:#FDE7F6}.hfb__step button[disabled]{opacity:.35;cursor:default}'+
   '.hfb__step span{min-width:26px;text-align:center;font-weight:800}'+
+  '.ins-header__icon--cart[data-hf-count]::after{content:attr(data-hf-count)!important}'+
+  'html.hf-cartlist-on .ec-store__cart-page .ec-cart__products{display:none!important}'+
+  '#hf-cartlist{margin:0 0 18px;border-top:1px solid rgba(14,14,17,.12)}#hf-cartlist .hfb__item{padding:16px 0}#hf-cartlist .hfb__img{flex-basis:88px;height:88px}#hf-cartlist .hfb__note{margin:12px 0 0;border-radius:10px}'+
   '.hfb__empty{padding:40px 0;text-align:center;color:#6B6875}'+
   '.hfb__foot{padding:18px 22px 22px;border-top:1px solid rgba(14,14,17,.08)}'+
   '.hfb__sub{display:flex;justify-content:space-between;font-weight:800;font-size:1.05rem;margin-bottom:6px}'+
@@ -223,19 +229,7 @@
     drawer.querySelector('.hfb__x').addEventListener('click',close);
     drawer.querySelector('[data-act=keep]').addEventListener('click',close);
     drawer.querySelector('[data-act=checkout]').addEventListener('click',function(){close();if(window.Ecwid&&Ecwid.openPage)Ecwid.openPage('cart');else location.href='/products/cart'});
-    drawer.querySelector('.hfb__list').addEventListener('click',function(e){
-      var b=e.target.closest&&e.target.closest('[data-act]');if(!b||!ecwid()||b.disabled||busy)return;
-      var d=b.dataset,act=d.act,again=function(msg){note(msg);cartGet(render)};
-      Array.prototype.forEach.call(drawer.querySelectorAll('.hfb__list button'),function(x){x.disabled=true});
-      if(act==='p+'){addPair(d.sole,d.strap,d.size,function(ok,msg){again(ok?'':msg)},1);return}
-      if(act==='p-'||act==='prm'){removePair(d.sole,d.strap,d.size,act==='prm'?+d.q:1,function(){again('')});return}
-      cartGet(function(c){var it=(c.items||[])[+d.i];if(!it){again('');return}
-        var q=it.quantity,opts=it.options||{},id=it.product.id;
-        if(act==='l+'){Ecwid.Cart.addProduct({id:id,quantity:1,options:opts,callback:function(ok){again(ok?'':'Sorry, no more of that one in stock.')}});return}
-        Ecwid.Cart.removeProduct(+d.i,function(){
-          if(act==='l-'&&q>1)Ecwid.Cart.addProduct({id:id,quantity:q-1,options:opts,callback:function(){again('')}});else again('')});
-      });
-    });
+    bindList(drawer.querySelector('.hfb__list'));
     document.body.appendChild(scrim);document.body.appendChild(drawer);
   }
   // Take n of a pair back out (n soles + n straps) and update its line in the color notes.
@@ -251,35 +245,64 @@
   }
   function isBin(id){return BIN_IDS.indexOf(id)>=0}
   function colorOf(it){var o=it.options||{};return o.Color||o.Colour||''}
-  function render(cart){
-    var list=drawer.querySelector('.hfb__list'),items=(cart&&cart.items)||[],rows=[];
-    // Show each sole + strap as one "Custom pair" line (strap is $0). Pair them by the saved color notes first,
-    // so two different pairs in the same size can't get crossed; anything left over pairs up by size.
-    var soleQ={},strapQ={},price={},other=[],straps=[],key=function(c,z){return c+'|'+z};
+  // Click handling shared by the drawer list and the bag-page list.
+  function bindList(el){
+    el.addEventListener('click',function(e){
+      var b=e.target.closest&&e.target.closest('[data-act]');if(!b||!ecwid()||b.disabled||busy)return;
+      var d=b.dataset,act=d.act,again=function(msg){note(msg);cartGet(render)};
+      Array.prototype.forEach.call(el.querySelectorAll('button'),function(x){x.disabled=true});
+      if(act==='p+'){addPair(d.sole,d.strap,d.size,function(ok,msg){again(ok?'':msg)},1);return}
+      if(act==='p-'||act==='prm'){removePair(d.sole,d.strap,d.size,act==='prm'?+d.q:1,function(){again('')});return}
+      cartGet(function(c){var it=(c.items||[])[+d.i];if(!it){again('');return}
+        var q=it.quantity,opts=it.options||{},id=it.product.id;
+        if(act==='l+'){Ecwid.Cart.addProduct({id:id,quantity:1,options:opts,callback:function(ok){again(ok?'':'Sorry, no more of that one in stock.')}});return}
+        Ecwid.Cart.removeProduct(+d.i,function(){
+          if(act==='l-'&&q>1)Ecwid.Cart.addProduct({id:id,quantity:q-1,options:opts,callback:function(){again('')}});else again('')});
+      });
+    });
+  }
+  // Bag contents as customers think of them: one "Custom pair" line per pair (its sole + strap), merch as is.
+  // Pairs are matched by the saved color notes first, so two different pairs in the same size can't cross.
+  function rowsFor(cart){
+    var items=(cart&&cart.items)||[],rows=[],count=0;
+    var soleQ={},strapQ={},soleP={},strapP={},other=[],key=function(c,z){return c+'|'+z};
     items.forEach(function(it){var id=it.product.id,o=it.options||{},k=key(colorOf(it),o.Size);
-      if(id===BINS.soleAdult||id===BINS.soleKids){soleQ[k]=(soleQ[k]||0)+it.quantity;price.s=it.product.price||0}
-      else if(id===BINS.strapAdult||id===BINS.strapKids){strapQ[k]=(strapQ[k]||0)+it.quantity;price.t=it.product.price||0}
+      if(id===BINS.soleAdult||id===BINS.soleKids){soleQ[k]=(soleQ[k]||0)+it.quantity;soleP[k]=it.product.price||0}
+      else if(id===BINS.strapAdult||id===BINS.strapKids){strapQ[k]=(strapQ[k]||0)+it.quantity;strapP[k]=it.product.price||0}
       else other.push(it)});
     var pairs=[],take=function(sole,strap,size,want){var a=key(sole,size),b=key(strap,size),n=Math.min(want,soleQ[a]||0,strapQ[b]||0);
-      if(n>0){soleQ[a]-=n;strapQ[b]-=n;pairs.push({sole:sole,strap:strap,size:size,qty:n})}};
+      if(n>0){soleQ[a]-=n;strapQ[b]-=n;pairs.push({sole:sole,strap:strap,size:size,qty:n,unit:(soleP[a]||0)+(strapP[b]||0)})}};
     readLines().forEach(function(l){take(l.sole,l.strap,l.size,l.qty||1)});
     Object.keys(soleQ).forEach(function(a){var p=a.split('|'),size=p[1];
       Object.keys(strapQ).forEach(function(b){if(b.split('|')[1]===size&&soleQ[a]>0)take(p[0],b.split('|')[0],size,soleQ[a])})});
-    var unit=(price.s||0)+(price.t||0);
     var step=function(q,minus,plus,attrs,max){return '<div class="hfb__step" role="group" aria-label="Quantity"><button type="button" data-act="'+minus+'" '+attrs+' aria-label="One fewer">&minus;</button><span aria-live="polite">'+q+'</span><button type="button" data-act="'+plus+'" '+attrs+' aria-label="One more"'+(max&&q>=max?' disabled':'')+'>+</button></div>'};
-    pairs.forEach(function(p){var at='data-sole="'+esc(p.sole)+'" data-strap="'+esc(p.strap)+'" data-size="'+esc(p.size)+'" data-q="'+p.qty+'"';
-      rows.push('<div class="hfb__item"><div class="hfb__img"><img alt="" src="'+esc(photo(p.sole,p.strap))+'"></div><div class="hfb__meta"><div class="hfb__name">Custom pair</div><div class="hfb__opts">'+esc(p.sole)+' sole &middot; '+esc(p.strap)+' strap<br>'+esc(p.size)+'</div>'+step(p.qty,'p-','p+',at,10)+'</div><div class="hfb__price">'+money(unit*p.qty)+'<button type="button" class="hfb__rm" data-act="prm" '+at+'>Remove</button></div></div>')});
-    Object.keys(soleQ).forEach(function(a){for(var n=0;n<soleQ[a];n++){var p=a.split('|');rows.push('<div class="hfb__item"><div class="hfb__img"></div><div class="hfb__meta"><div class="hfb__name">Sole only</div><div class="hfb__opts">'+esc(p[0])+' &middot; '+esc(p[1])+'</div></div><div class="hfb__price">'+money(price.s)+'</div></div>')}});
-    Object.keys(strapQ).forEach(function(b){for(var n=0;n<strapQ[b];n++)straps.push({product:{name:'Strap only',price:price.t||0},options:{Color:b.split('|')[0],Size:b.split('|')[1]}})});
-    straps.forEach(function(t){rows.push('<div class="hfb__item"><div class="hfb__img"></div><div class="hfb__meta"><div class="hfb__name">'+esc(t.product.name)+'</div><div class="hfb__opts">'+esc(colorOf(t))+' &middot; '+esc((t.options||{}).Size)+'</div></div><div class="hfb__price">'+money(t.product.price)+'</div></div>')});
-    other.forEach(function(it){var idx=items.indexOf(it),o=it.options||{},opts=Object.keys(o).map(function(k){return esc(k)+': '+esc(o[k])}).join(' &middot; ');
-      rows.push('<div class="hfb__item"><div class="hfb__img">'+(function(){var m=it.product.mediaItem||{},u=m.image160pxUrl||m.image400pxUrl||it.product.imageUrl;return u?'<img alt="" src="'+esc(u)+'">':''})()+'</div><div class="hfb__meta"><div class="hfb__name">'+esc(it.product.name)+'</div><div class="hfb__opts">'+opts+(it.quantity>1?(opts?' &middot; ':'')+'Qty '+it.quantity:'')+'</div></div><div class="hfb__price">'+money((it.product.price||0)*it.quantity)+'<button type="button" class="hfb__rm" data-act="lrm" data-i="'+idx+'">Remove</button></div></div>')});
-    list.innerHTML=rows.length?rows.join(''):'<p class="hfb__empty">Your bag is empty.</p>';
-    var sub=items.reduce(function(a,it){return a+(it.product.price||0)*it.quantity},0);
-    drawer.querySelector('.hfb__subv').textContent=money(sub);
-    drawer.querySelector('[data-act=checkout]').disabled=!items.length;
+    pairs.forEach(function(p){count+=p.qty;var at='data-sole="'+esc(p.sole)+'" data-strap="'+esc(p.strap)+'" data-size="'+esc(p.size)+'" data-q="'+p.qty+'"';
+      rows.push('<div class="hfb__item"><div class="hfb__img"><img alt="" src="'+esc(photo(p.sole,p.strap))+'"></div><div class="hfb__meta"><div class="hfb__name">Custom pair</div><div class="hfb__opts">'+esc(p.sole)+' sole &middot; '+esc(p.strap)+' strap<br>'+esc(p.size)+'</div>'+step(p.qty,'p-','p+',at,10)+'</div><div class="hfb__price">'+money(p.unit*p.qty)+'<button type="button" class="hfb__rm" data-act="prm" '+at+'>Remove</button></div></div>')});
+    Object.keys(soleQ).forEach(function(a){if(soleQ[a]>0){count+=soleQ[a];var p=a.split('|');rows.push('<div class="hfb__item"><div class="hfb__img"></div><div class="hfb__meta"><div class="hfb__name">Sole only</div><div class="hfb__opts">'+esc(p[0])+' &middot; '+esc(p[1])+(soleQ[a]>1?' &middot; Qty '+soleQ[a]:'')+'</div></div><div class="hfb__price">'+money((soleP[a]||0)*soleQ[a])+'</div></div>')}});
+    Object.keys(strapQ).forEach(function(b){if(strapQ[b]>0){var p=b.split('|');rows.push('<div class="hfb__item"><div class="hfb__img"></div><div class="hfb__meta"><div class="hfb__name">Strap only</div><div class="hfb__opts">'+esc(p[0])+' &middot; '+esc(p[1])+'</div></div><div class="hfb__price">'+money((strapP[b]||0)*strapQ[b])+'</div></div>')}});
+    other.forEach(function(it){count+=it.quantity;var idx=items.indexOf(it),o=it.options||{},opts=Object.keys(o).map(function(k){return esc(k)+': '+esc(o[k])}).join(' &middot; ');
+      rows.push('<div class="hfb__item"><div class="hfb__img">'+(function(){var m=it.product.mediaItem||{},u=m.image160pxUrl||m.image400pxUrl||it.product.imageUrl;return u?'<img alt="" src="'+esc(u)+'">':''})()+'</div><div class="hfb__meta"><div class="hfb__name">'+esc(it.product.name)+'</div><div class="hfb__opts">'+opts+'</div>'+step(it.quantity,'l-','l+','data-i="'+idx+'"',0)+'</div><div class="hfb__price">'+money((it.product.price||0)*it.quantity)+'<button type="button" class="hfb__rm" data-act="lrm" data-i="'+idx+'">Remove</button></div></div>')});
+    return {html:rows.length?rows.join(''):'<p class="hfb__empty">Your bag is empty.</p>',sub:items.reduce(function(a,it){return a+(it.product.price||0)*it.quantity},0),count:count,empty:!items.length};
   }
-  function note(msg){if(!drawer)return;var n=drawer.querySelector('.hfb__note');if(msg){n.textContent=msg;n.hidden=false}else n.hidden=true}
+  var lastCount=null;
+  function render(cart){
+    var r=rowsFor(cart);lastCount=r.count;badge();
+    if(drawer){drawer.querySelector('.hfb__list').innerHTML=r.html;drawer.querySelector('.hfb__subv').textContent=money(r.sub);drawer.querySelector('[data-act=checkout]').disabled=r.empty}
+    var pl=document.getElementById('hf-cartlist');if(pl)pl.querySelector('.hfc__list').innerHTML=r.html;
+  }
+  // Header bag count = pairs + merch (a pair is two bin lines underneath).
+  function badge(){if(lastCount===null)return;Array.prototype.forEach.call(document.querySelectorAll('.ins-header__icon--cart'),function(a){if(a.getAttribute('data-hf-count')!==String(lastCount))a.setAttribute('data-hf-count',lastCount)})}
+  // Bag page: Ecwid lists every sole and strap separately (and collapses 4+ lines into a thumbnail strip).
+  // Show the same pair list as the drawer instead; Ecwid's totals, gift card and checkout stay.
+  function cartPage(){
+    if(!onCartPage()){document.documentElement.classList.remove('hf-cartlist-on');return}
+    var native=document.querySelector('.ec-store__cart-page .ec-cart__products');if(!native)return;
+    var pl=document.getElementById('hf-cartlist');
+    if(!pl||pl.nextElementSibling!==native){if(pl)pl.remove();pl=document.createElement('div');pl.id='hf-cartlist';pl.innerHTML='<div class="hfc__list"></div>';native.parentNode.insertBefore(pl,native);bindList(pl.querySelector('.hfc__list'));if(ecwid())cartGet(render)}
+    document.documentElement.classList.add('hf-cartlist-on');
+  }
+  setInterval(function(){css();badge();cartPage()},700);
+  function note(msg){if(drawer){var n=drawer.querySelector('.hfb__note');if(msg){n.textContent=msg;n.hidden=false}else n.hidden=true}var pl=document.getElementById('hf-cartlist');if(pl&&msg){var m=pl.querySelector('.hfc__msg');if(!m){m=document.createElement('p');m.className='hfb__note hfc__msg';pl.insertBefore(m,pl.firstChild)}m.textContent=msg}}
   function open(note){
     if(onCartPage())return;css();build();
     var n=drawer.querySelector('.hfb__note');if(note){n.textContent=note;n.hidden=false}else n.hidden=true;
@@ -296,11 +319,11 @@
     if(!ecwid()||!Ecwid.OnCartChanged){setTimeout(watch,400);return}
     Ecwid.OnCartChanged.add(function(c){
       var q=c?c.productsQuantity:0;
-      if(drawer&&drawer.classList.contains('is-open'))cartGet(render);
+      cartGet(render);
       if(lastQty!==null&&q>lastQty&&!busy&&!window.__hfPairBusy){clearTimeout(openT);openT=setTimeout(function(){if(!busy&&!window.__hfPairBusy)open('Added to your bag')},700)}
       lastQty=q;
     });
-    cartGet(function(c){if(lastQty===null)lastQty=c.productsQuantity||0});
+    cartGet(function(c){if(lastQty===null)lastQty=c.productsQuantity||0;render(c)});
   }
   watch();
 
@@ -311,7 +334,7 @@
     qp=document.createElement('div');qp.className='hfq';qp.setAttribute('role','dialog');qp.setAttribute('aria-modal','true');qp.tabIndex=-1;
     var sz=function(pre,arr){return arr.map(function(n){return '<button type="button" class="hfq__s" data-size="'+pre+' '+n+'">'+n+'</button>'}).join('')};
     qp.innerHTML='<div class="hfq__img"><img alt=""><button type="button" class="hfq__x" aria-label="Close">&times;</button></div>'+
-      '<div class="hfq__body"><h2 class="hfq__name"></h2><p class="hfq__price">$24 a pair</p>'+
+      '<div class="hfq__body"><h2 class="hfq__name"></h2><p class="hfq__price">Adult $'+PRICE.Adult+' &middot; Kids $'+PRICE.Kids+'</p>'+
       '<p class="hfq__lbl">Adult</p><div class="hfq__sizes">'+sz('Adult',ADULT)+'</div>'+
       '<p class="hfq__lbl">Kids</p><div class="hfq__sizes">'+sz('Kids',KIDS)+'</div>'+
       '<p class="hfq__lbl">Quantity</p><div class="hfb__step hfq__qty" role="group" aria-label="Quantity"><button type="button" data-q="-1" aria-label="One fewer">&minus;</button><span aria-live="polite">1</span><button type="button" data-q="1" aria-label="One more">+</button></div>'+
@@ -337,7 +360,7 @@
     qp.querySelector('.hfq__qty span').textContent=q;
     qp.querySelector('.hfq__qty [data-q="-1"]').disabled=q<=1;qp.querySelector('.hfq__qty [data-q="1"]').disabled=q>=10;
     if(!qState.size){a.disabled=true;a.textContent='Pick a size';return}
-    a.disabled=false;a.textContent=(q>1?'Add '+q+' pairs':'Add to Bag')+' · '+qState.size+' · $'+(24*q)}
+    a.disabled=false;a.textContent=(q>1?'Add '+q+' pairs':'Add to Bag')+' · '+qState.size+' · $'+(PRICE[qState.size.split(' ')[0]]*q)}
   function qOpen(sole,strap,title,img,href){
     qBuild();qState={sole:sole,strap:strap,size:null,qty:1};
     qp.querySelector('.hfq__name').textContent=title;qp.setAttribute('aria-label',title);
@@ -353,6 +376,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('#hf-pairs p, [id^="tile-custom-code"] p'),function(p){
       if(/Tap one to load it onto the wheel above/.test(p.textContent))p.textContent='Tap a pair to pick your size and add it to your bag, or spin the wheel above to make your own.';
       if(/Tap a pair to load it onto the wheel, pick your size, and add it to your bag/.test(p.textContent))p.textContent=p.textContent.replace('Tap a pair to load it onto the wheel, pick your size, and add it to your bag','Tap a pair, pick your size, and add it to your bag');});
+    Array.prototype.forEach.call(document.querySelectorAll('a.hfp-card[href*="sole="] .hfp-meta'),function(m){var t='$'+PRICE.Adult+' adult \u00b7 $'+PRICE.Kids+' kids';if(m.textContent!==t)m.textContent=t});
     Array.prototype.forEach.call(document.querySelectorAll('a.hfp-card[href*="sole="] .hfp-go'),function(g){if(g.textContent.indexOf('Pick your size')<0)g.innerHTML='Pick your size &rarr;'});
   }
   copy();setInterval(copy,1000);
