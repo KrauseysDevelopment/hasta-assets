@@ -169,7 +169,8 @@
   '.hfb__item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid rgba(14,14,17,.08)}'+
   '.hfb__img{flex:0 0 72px;height:72px;border-radius:12px;background:#F4F2EF;overflow:hidden}.hfb__img img{width:100%;height:100%;object-fit:cover;display:block}'+
   '.hfb__meta{flex:1;min-width:0}.hfb__name{font-weight:800;line-height:1.25}.hfb__opts{font-size:.86rem;color:#6B6875;margin-top:3px}'+
-  '.hfb__price{font-weight:800;white-space:nowrap}'+
+  '.hfb__price{font-weight:800;white-space:nowrap;text-align:right}'+
+  '.hfb__rm{display:block;margin-top:6px;border:0;background:none;padding:0;font:inherit;font-size:.8rem;font-weight:700;color:#6B6875;text-decoration:underline;cursor:pointer}.hfb__rm:hover{color:#B00060}'+
   '.hfb__empty{padding:40px 0;text-align:center;color:#6B6875}'+
   '.hfb__foot{padding:18px 22px 22px;border-top:1px solid rgba(14,14,17,.08)}'+
   '.hfb__sub{display:flex;justify-content:space-between;font-weight:800;font-size:1.05rem;margin-bottom:6px}'+
@@ -180,7 +181,7 @@
   /* quick-add panel */
   '.hfq{position:fixed;left:50%;top:50%;width:min(460px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;background:#fff;border-radius:22px;z-index:100002;transform:translate(-50%,-46%);opacity:0;visibility:hidden;transition:opacity .2s,transform .2s,visibility .2s;box-shadow:0 30px 60px rgba(14,14,17,.25);font-family:inherit;color:#0E0E11}'+
   '.hfq.is-open{opacity:1;visibility:visible;transform:translate(-50%,-50%)}'+
-  '.hfq__img{position:relative;aspect-ratio:1/0.8;background:#F7F7F7}.hfq__img img{width:100%;height:100%;object-fit:contain;display:block}'+
+  '.hfq__img{position:relative;height:min(240px,32vh);background:#F7F7F7}.hfq__img img{width:100%;height:100%;object-fit:contain;display:block}'+
   '.hfq__x{position:absolute;top:10px;right:10px;width:40px;height:40px;border-radius:50%;border:0;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.15);font-size:24px;cursor:pointer}'+
   '.hfq__body{padding:18px 22px 22px}.hfq__name{margin:0;font-size:1.4rem;font-weight:900}.hfq__price{margin:4px 0 14px;font-weight:800;color:#C4008A}'+
   '.hfq__lbl{font-size:.74rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#6B6875;margin:12px 0 8px}'+
@@ -206,7 +207,24 @@
     drawer.querySelector('.hfb__x').addEventListener('click',close);
     drawer.querySelector('[data-act=keep]').addEventListener('click',close);
     drawer.querySelector('[data-act=checkout]').addEventListener('click',function(){close();if(window.Ecwid&&Ecwid.openPage)Ecwid.openPage('cart');else location.href='/products/cart'});
+    drawer.querySelector('.hfb__list').addEventListener('click',function(e){
+      var b=e.target.closest&&e.target.closest('.hfb__rm');if(!b||!ecwid())return;b.disabled=true;b.textContent='Removing\u2026';
+      if(b.dataset.rm==='line'){Ecwid.Cart.removeProduct(+b.dataset.i,function(){cartGet(render)});return}
+      removePair(b.dataset.sole,b.dataset.strap,b.dataset.size,function(){cartGet(render)});
+    });
     document.body.appendChild(scrim);document.body.appendChild(drawer);
+  }
+  // Take one sole + one strap of that pair back out, and drop its line from the color notes.
+  function removePair(sole,strap,size,done){
+    cartGet(function(c){
+      var find=function(ids,color){var it=c.items||[];for(var i=0;i<it.length;i++){var o=it[i].options||{};if(ids.indexOf(it[i].product.id)>=0&&(o.Color||o.Colour)===color&&o.Size===size)return it[i].options}return null};
+      var kids=size.indexOf('Kids')===0,so=find([kids?BINS.soleKids:BINS.soleAdult],sole),st=find([kids?BINS.strapKids:BINS.strapAdult],strap);
+      var l=readLines();for(var i=0;i<l.length;i++)if(l[i].sole===sole&&l[i].strap===strap&&l[i].size===size){l.splice(i,1);break}
+      busy=true;
+      var fin=function(){writeComments(l);busy=false;done()};
+      var rmStrap=function(){st?removeOne(kids?BINS.strapKids:BINS.strapAdult,st,fin):fin()};
+      so?removeOne(kids?BINS.soleKids:BINS.soleAdult,so,rmStrap):rmStrap();
+    });
   }
   function isBin(id){return BIN_IDS.indexOf(id)>=0}
   function colorOf(it){var o=it.options||{};return o.Color||o.Colour||''}
@@ -221,10 +239,10 @@
       var t=j>=0?straps.splice(j,1)[0]:null,key=colorOf(s)+'|'+(t?colorOf(t):'')+'|'+size;
       (pairs[key]=pairs[key]||{sole:colorOf(s),strap:t?colorOf(t):'',size:size,qty:0,price:(s.product.price||0)+(t?(t.product.price||0):0)}).qty++});
     Object.keys(pairs).forEach(function(k){var p=pairs[k];
-      rows.push('<div class="hfb__item"><div class="hfb__img"><img alt="" src="'+esc(p.strap?photo(p.sole,p.strap):'')+'"></div><div class="hfb__meta"><div class="hfb__name">Custom pair</div><div class="hfb__opts">'+esc(p.sole)+' sole &middot; '+esc(p.strap||'?')+' strap<br>'+esc(p.size)+(p.qty>1?' &middot; Qty '+p.qty:'')+'</div></div><div class="hfb__price">'+money(p.price*p.qty)+'</div></div>')});
+      rows.push('<div class="hfb__item"><div class="hfb__img"><img alt="" src="'+esc(p.strap?photo(p.sole,p.strap):'')+'"></div><div class="hfb__meta"><div class="hfb__name">Custom pair</div><div class="hfb__opts">'+esc(p.sole)+' sole &middot; '+esc(p.strap||'?')+' strap<br>'+esc(p.size)+(p.qty>1?' &middot; Qty '+p.qty:'')+'</div></div><div class="hfb__price">'+money(p.price*p.qty)+'<button type="button" class="hfb__rm" data-rm="pair" data-sole="'+esc(p.sole)+'" data-strap="'+esc(p.strap)+'" data-size="'+esc(p.size)+'">Remove</button></div></div>')});
     straps.forEach(function(t){rows.push('<div class="hfb__item"><div class="hfb__img"></div><div class="hfb__meta"><div class="hfb__name">'+esc(t.product.name)+'</div><div class="hfb__opts">'+esc(colorOf(t))+' &middot; '+esc((t.options||{}).Size)+'</div></div><div class="hfb__price">'+money(t.product.price)+'</div></div>')});
-    other.forEach(function(it){var o=it.options||{},opts=Object.keys(o).map(function(k){return esc(k)+': '+esc(o[k])}).join(' &middot; ');
-      rows.push('<div class="hfb__item"><div class="hfb__img">'+(it.product.imageUrl?'<img alt="" src="'+esc(it.product.imageUrl)+'">':'')+'</div><div class="hfb__meta"><div class="hfb__name">'+esc(it.product.name)+'</div><div class="hfb__opts">'+opts+(it.quantity>1?(opts?' &middot; ':'')+'Qty '+it.quantity:'')+'</div></div><div class="hfb__price">'+money((it.product.price||0)*it.quantity)+'</div></div>')});
+    other.forEach(function(it){var idx=items.indexOf(it),o=it.options||{},opts=Object.keys(o).map(function(k){return esc(k)+': '+esc(o[k])}).join(' &middot; ');
+      rows.push('<div class="hfb__item"><div class="hfb__img">'+(it.product.imageUrl?'<img alt="" src="'+esc(it.product.imageUrl)+'">':'')+'</div><div class="hfb__meta"><div class="hfb__name">'+esc(it.product.name)+'</div><div class="hfb__opts">'+opts+(it.quantity>1?(opts?' &middot; ':'')+'Qty '+it.quantity:'')+'</div></div><div class="hfb__price">'+money((it.product.price||0)*it.quantity)+'<button type="button" class="hfb__rm" data-rm="line" data-i="'+idx+'">Remove</button></div></div>')});
     list.innerHTML=rows.length?rows.join(''):'<p class="hfb__empty">Your bag is empty.</p>';
     var sub=items.reduce(function(a,it){return a+(it.product.price||0)*it.quantity},0);
     drawer.querySelector('.hfb__subv').textContent=money(sub);
