@@ -79,6 +79,9 @@
   /* 4. No stock counts or outlet inventory on the storefront (Nick 2026-11-01). Stock text hidden by CSS;
         the "Outlet inventory" accordion has no unique class, so it is hidden by its title. */
   CSS+='.details-product-purchase__place,.product-details__product-stock,.grid-product__label--stock{display:none!important}';
+  /* 5. Site Style adds a flip-flop size hint ("Adult 5–12 · Kids …") under every Size picker. Flip flops are sized
+        on the wheel now, so on product pages that hint only ever lands on T-shirts. Turn it off. */
+  CSS+='.ec-store__product-page .details-product-option--Size .product-details-module__content::after{content:none!important;display:none!important}';
   function noOutlet(){
     var t=document.querySelectorAll('.collapsible-section__title');
     for(var k=0;k<t.length;k++){if(/outlet inventory|pickup availability/i.test(t[k].textContent)){var s=t[k].closest('.collapsible-section');var w=s&&s.parentElement&&s.parentElement.children.length===1?s.parentElement:s;if(w)w.style.display='none'}}
