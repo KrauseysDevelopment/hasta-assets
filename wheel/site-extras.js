@@ -76,6 +76,13 @@
       var d=document.createElement('div');d.className='hf-msub';d.innerHTML=menuHtml('hf-msub__a');host.appendChild(d);
     }
   }
+  /* 4. No stock counts or outlet inventory on the storefront (Nick 2026-11-01). Stock text hidden by CSS;
+        the "Outlet inventory" accordion has no unique class, so it is hidden by its title. */
+  CSS+='.details-product-purchase__place,.product-details__product-stock,.grid-product__label--stock{display:none!important}';
+  function noOutlet(){
+    var t=document.querySelectorAll('.collapsible-section__title');
+    for(var k=0;k<t.length;k++){if(/outlet inventory|pickup availability/i.test(t[k].textContent)){var s=t[k].closest('.collapsible-section');var w=s&&s.parentElement&&s.parentElement.children.length===1?s.parentElement:s;if(w)w.style.display='none'}}
+  }
   addEventListener('scroll',ddClose,{passive:true});addEventListener('resize',ddClose);
   document.addEventListener('keydown',function(e){if(e.key==='Escape')ddClose()});
   CSS+='.hf-has-dd>.ins-header__menu-link-title::after{content:"";display:inline-block;width:6px;height:6px;margin:0 0 3px 7px;border:solid currentColor;border-width:0 2px 2px 0;transform:rotate(45deg);transition:transform .15s}'+
@@ -91,6 +98,6 @@
     '.hf-msub__a,.hf-msub__a:visited{display:block;padding:7px 0;font-size:.92em;font-weight:600;color:inherit!important;text-decoration:none;opacity:.9}'+
     '.hf-msub__a:hover{opacity:1;text-decoration:underline}'+
     '.hf-dd__a:last-child{border-top:1px solid rgba(14,14,17,.08);margin-top:4px;padding-top:13px;color:#0B8F89!important}';
-  function go(){css();if(!ready())return;footer();merch();dropdown();mobileSub()}
+  function go(){css();if(!ready())return;footer();merch();dropdown();mobileSub();noOutlet()}
   go();document.readyState==='loading'&&document.addEventListener('DOMContentLoaded',go);setInterval(go,1000);
 })();
