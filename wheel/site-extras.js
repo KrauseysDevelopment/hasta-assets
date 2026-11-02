@@ -9,7 +9,8 @@
     {n:'Hasta Tote Bag',m:'$19.99',h:'/products/hasta-tote-bags-874635836',i:'https://d2j6dbq0eux0bg.cloudfront.net/images/142623305/products/874635836/6368191141.jpg'},
     {n:'Hasta T-Shirts',m:'From $24.99 &middot; 3 designs',h:'/products/t-shirts',i:'https://d2j6dbq0eux0bg.cloudfront.net/images/142623305/products/874635877/6368223365.jpg'}
   ];
-  var BIN_CATS=['208164304','208164334'], BIN_SLUGS=['adult-sole','kid-strap'];
+  // Hidden categories: the two inventory bins, plus an empty duplicate "Tote Bag" (the totes live in "Hasta Tote Bags").
+  var BIN_CATS=['208164304','208164334','208164089'], BIN_SLUGS=['adult-sole','kid-strap','tote-bag'];
   var CSS=BIN_CATS.map(function(c){return '.grid-category--id-'+c}).join(',')+'{display:none!important}'+
     '#hf-merch{margin:56px auto 0}#hf-merch .hfm-head{text-align:center;margin:0 20px 6px}'+
     '#hf-merch .hfm-eyebrow{margin:0 0 8px;font-size:.74rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#13C2BB}'+
