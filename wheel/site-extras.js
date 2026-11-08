@@ -363,12 +363,19 @@
       var img=i.querySelector('.ec-cart-item__picture img, img');if(img&&st){var u=photo(sole,opt(st,'Color'));if(img.getAttribute('src')!==u){img.setAttribute('src',u);img.removeAttribute('srcset')}}
       i.dataset.hfPair='1';
     });
-    if(lastCount!==null)[].forEach.call(document.querySelectorAll('.ec-cart-item-sum--items .form-control__select-text, .ec-cart-item-sum--items'),function(e){
-      if(e.children.length)return;var want=lastCount+(lastCount===1?' item':' items');if(/^\d+ items?$/.test(e.textContent.trim())&&e.textContent.trim()!==want)e.textContent=want});
+  }
+  // Ecwid counts sole + strap as two items. Show pairs + merch (lastCount) everywhere Ecwid prints a count:
+  // checkout summary "5 items", Account "5 items ($84.79)", store footer "Shopping Bag (5)".
+  function counts(){
+    if(lastCount===null)return;var n=lastCount,word=n===1?' item':' items';
+    [].forEach.call(document.querySelectorAll('.ec-cart-item-sum__count-label, .ec-cart-item-sum--items'),function(e){
+      if(e.children.length)return;var v=e.textContent,w=v.replace(/^(\s*)\d+ items?/,'$1'+n+word);if(w!==v)e.textContent=w});
+    [].forEach.call(document.querySelectorAll('.footer__link--shopping-cart'),function(a){
+      [].forEach.call(a.childNodes,function(t){if(t.nodeType===3&&/\(\d+\)/.test(t.nodeValue)){var w=t.nodeValue.replace(/\(\d+\)/,'('+n+')');if(w!==t.nodeValue)t.nodeValue=w}})});
   }
   CSS+='.ec-cart-step--delivery.ec-cart-step--empty{display:none!important}'+
     '.ec-cart-step--delivery.ec-cart-step--done .ec-cart-step__change{display:none!important}';
-  setInterval(function(){css();badge();cartPage();pickupSkip();summary()},500);
+  setInterval(function(){css();badge();cartPage();pickupSkip();summary();counts()},500);
   function note(msg){if(drawer){var n=drawer.querySelector('.hfb__note');if(msg){n.textContent=msg;n.hidden=false}else n.hidden=true}var pl=document.getElementById('hf-cartlist');if(pl&&msg){var m=pl.querySelector('.hfc__msg');if(!m){m=document.createElement('p');m.className='hfb__note hfc__msg';pl.insertBefore(m,pl.firstChild)}m.textContent=msg}}
   function open(note){
     if(onCartPage())return;css();build();
