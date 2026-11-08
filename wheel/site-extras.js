@@ -124,6 +124,10 @@
   // Pair prices (Zach, 2026-11-01). The cart charges whatever Retail says; these are only for display.
   // Retail: Sole - Adult $30, Sole - Kids $25, both strap bins $0. Change both together.
   var PRICE={Adult:30,Kids:25};
+  // Adult sizes are men's; women's = men's - 1 per Zach ("Mens 10/Womens 9"). Keep in step with HF.womens in the wheel.
+  var WOMENS={5:4,6:5,7:6,8:7,9:8,10:9,11:10,12:11};
+  function sizeLabel(size){var m=/^Adult (\d+)$/.exec(size||'');return m&&WOMENS[m[1]]!=null?size+' (M'+m[1]+' / W'+WOMENS[m[1]]+')':size}
+  function shortSize(size){var m=/^Adult (\d+)$/.exec(size||'');return m&&WOMENS[m[1]]!=null?'M'+m[1]+' / W'+WOMENS[m[1]]:size}
   var PHOTO='https://cdn.jsdelivr.net/gh/KrauseysDevelopment/hasta-assets@f1e48a4fd6661d55ea06467f7096fb5511c1f87c/combos/';
   var BIN_IDS=[BINS.soleAdult,BINS.soleKids,BINS.strapAdult,BINS.strapKids];
   function slug(n){return SLUG[n]||n.toLowerCase().replace(/[^a-z]+/g,'-').replace(/^-|-$/g,'')}
@@ -218,6 +222,8 @@
   '.hfq__lbl{font-size:.74rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#6B6875;margin:12px 0 8px}'+
   '.hfq__sizes{display:flex;flex-wrap:wrap;gap:8px}'+
   '.hfq__s{min-width:46px;height:44px;border-radius:12px;border:2px solid rgba(14,14,17,.12);background:#fff;font-weight:800;font-size:.95rem;cursor:pointer;font-family:inherit;color:#0E0E11}'+
+  '.hfq__s--mw{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;height:auto;padding:6px 8px;min-width:52px}.hfq__s--mw small{font-size:.7rem;font-weight:600;opacity:.75}'+
+  '.hfq__hint{text-transform:none;letter-spacing:0;font-weight:600;margin-left:4px}'+
   '.hfq__s:hover{border-color:#13C2BB}.hfq__s.is-on{background:#F607B0;border-color:#F607B0;color:#0E0E11}'+
   '.hfq__msg{min-height:1.3em;margin:12px 0 0;font-size:.9rem;color:#B00060;font-weight:700}'+
   '.hfq__add{margin-top:10px}.hfq__add[disabled]{opacity:.5;cursor:not-allowed}'+
@@ -301,7 +307,7 @@
     var pairs=matchPairs(soleQ,strapQ,soleP,strapP);
     var step=function(q,minus,plus,attrs,max){return '<div class="hfb__step" role="group" aria-label="Quantity"><button type="button" data-act="'+minus+'" '+attrs+' aria-label="One fewer">&minus;</button><span aria-live="polite">'+q+'</span><button type="button" data-act="'+plus+'" '+attrs+' aria-label="One more"'+(max&&q>=max?' disabled':'')+'>+</button></div>'};
     pairs.forEach(function(p){count+=p.qty;var at='data-sole="'+esc(p.sole)+'" data-strap="'+esc(p.strap)+'" data-size="'+esc(p.size)+'" data-q="'+p.qty+'"';
-      rows.push('<div class="hfb__item"><div class="hfb__img"><img alt="" src="'+esc(photo(p.sole,p.strap))+'"></div><div class="hfb__meta"><div class="hfb__name">Custom pair</div><div class="hfb__opts">'+esc(p.sole)+' sole &middot; '+esc(p.strap)+' strap<br>'+esc(p.size)+'</div>'+step(p.qty,'p-','p+',at,10)+'</div><div class="hfb__price">'+money(p.unit*p.qty)+'<button type="button" class="hfb__rm" data-act="prm" '+at+'>Remove</button></div></div>')});
+      rows.push('<div class="hfb__item"><div class="hfb__img"><img alt="" src="'+esc(photo(p.sole,p.strap))+'"></div><div class="hfb__meta"><div class="hfb__name">Custom pair</div><div class="hfb__opts">'+esc(p.sole)+' sole &middot; '+esc(p.strap)+' strap<br>'+esc(sizeLabel(p.size))+'</div>'+step(p.qty,'p-','p+',at,10)+'</div><div class="hfb__price">'+money(p.unit*p.qty)+'<button type="button" class="hfb__rm" data-act="prm" '+at+'>Remove</button></div></div>')});
     Object.keys(soleQ).forEach(function(a){if(soleQ[a]>0){count+=soleQ[a];var p=a.split('|');rows.push('<div class="hfb__item"><div class="hfb__img"></div><div class="hfb__meta"><div class="hfb__name">Sole only</div><div class="hfb__opts">'+esc(p[0])+' &middot; '+esc(p[1])+(soleQ[a]>1?' &middot; Qty '+soleQ[a]:'')+'</div></div><div class="hfb__price">'+money((soleP[a]||0)*soleQ[a])+'</div></div>')}});
     Object.keys(strapQ).forEach(function(b){if(strapQ[b]>0){var p=b.split('|');rows.push('<div class="hfb__item"><div class="hfb__img"></div><div class="hfb__meta"><div class="hfb__name">Strap only</div><div class="hfb__opts">'+esc(p[0])+' &middot; '+esc(p[1])+'</div></div><div class="hfb__price">'+money((strapP[b]||0)*strapQ[b])+'</div></div>')}});
     other.forEach(function(it){count+=it.quantity;var idx=items.indexOf(it),o=it.options||{},opts=Object.keys(o).map(function(k){return esc(k)+': '+esc(o[k])}).join(' &middot; ');
@@ -356,10 +362,10 @@
   function qBuild(){
     if(qp&&document.body.contains(qp))return;css();build();
     qp=document.createElement('div');qp.className='hfq';qp.setAttribute('role','dialog');qp.setAttribute('aria-modal','true');qp.tabIndex=-1;
-    var sz=function(pre,arr){return arr.map(function(n){return '<button type="button" class="hfq__s" data-size="'+pre+' '+n+'">'+n+'</button>'}).join('')};
+    var sz=function(pre,arr){return arr.map(function(n){var w=pre==='Adult'?WOMENS[n]:null;return '<button type="button" class="hfq__s'+(w!=null?' hfq__s--mw':'')+'" data-size="'+pre+' '+n+'"'+(w!=null?' aria-label="Adult '+n+': men&#39;s '+n+', women&#39;s '+w+'"><span>M'+n+'</span><small>W'+w+'</small>':'>'+n)+'</button>'}).join('')};
     qp.innerHTML='<div class="hfq__img"><img alt=""><button type="button" class="hfq__x" aria-label="Close">&times;</button></div>'+
       '<div class="hfq__body"><h2 class="hfq__name"></h2><p class="hfq__price">Adult $'+PRICE.Adult+' &middot; Kids $'+PRICE.Kids+'</p>'+
-      '<p class="hfq__lbl">Adult</p><div class="hfq__sizes">'+sz('Adult',ADULT)+'</div>'+
+      '<p class="hfq__lbl">Adult <span class="hfq__hint">men&#39;s (M) / women&#39;s (W)</span></p><div class="hfq__sizes">'+sz('Adult',ADULT)+'</div>'+
       '<p class="hfq__lbl">Kids</p><div class="hfq__sizes">'+sz('Kids',KIDS)+'</div>'+
       '<p class="hfq__lbl">Quantity</p><div class="hfb__step hfq__qty" role="group" aria-label="Quantity"><button type="button" data-q="-1" aria-label="One fewer">&minus;</button><span aria-live="polite">1</span><button type="button" data-q="1" aria-label="One more">+</button></div>'+
       '<p class="hfq__msg" aria-live="polite"></p>'+
@@ -384,7 +390,7 @@
     qp.querySelector('.hfq__qty span').textContent=q;
     qp.querySelector('.hfq__qty [data-q="-1"]').disabled=q<=1;qp.querySelector('.hfq__qty [data-q="1"]').disabled=q>=10;
     if(!qState.size){a.disabled=true;a.textContent='Pick a size';return}
-    a.disabled=false;a.textContent=(q>1?'Add '+q+' pairs':'Add to Bag')+' · '+qState.size+' · $'+(PRICE[qState.size.split(' ')[0]]*q)}
+    a.disabled=false;a.textContent=(q>1?'Add '+q+' pairs':'Add to Bag')+' · '+shortSize(qState.size)+' · $'+(PRICE[qState.size.split(' ')[0]]*q)}
   function qOpen(sole,strap,title,img,href){
     qBuild();qState={sole:sole,strap:strap,size:null,qty:1};
     qp.querySelector('.hfq__name').textContent=title;qp.setAttribute('aria-label',title);
@@ -403,7 +409,11 @@
     Array.prototype.forEach.call(document.querySelectorAll('a.hfp-card[href*="sole="] .hfp-meta'),function(m){var t='$'+PRICE.Adult+' adult \u00b7 $'+PRICE.Kids+' kids';if(m.textContent!==t)m.textContent=t});
     Array.prototype.forEach.call(document.querySelectorAll('a.hfp-card[href*="sole="] .hfp-go'),function(g){if(g.textContent.indexOf('Pick your size')<0)g.innerHTML='Pick your size &rarr;'});
   }
-  copy();setInterval(copy,1000);
+  // FAQ sizing answer (the FAQ page is an editor section; patched here so it's live without a publish).
+  function faq(){Array.prototype.forEach.call(document.querySelectorAll('details.hf-faq'),function(d){var sm=d.querySelector('summary'),p=d.querySelector('p');
+    if(sm&&p&&/What sizes do you carry/.test(sm.textContent)&&!p.dataset.hf){p.dataset.hf='1';
+      p.textContent='Adult sizes are men\u2019s sizes 5 through 12, and every size button shows both: M10 / W9 means men\u2019s 10 or women\u2019s 9. Women, pick the adult size one number above your usual size (a women\u2019s 9 is an Adult 10). Kids sizes are 11, 12, 13, 1, 2 and 3. Kids 11 and Adult 11 are different shoes, so sizes always show their group. If you are between sizes we suggest sizing up.'}})}
+  copy();faq();setInterval(function(){copy();faq()},1000);
   document.addEventListener('click',function(e){
     var a=e.target.closest&&e.target.closest('a.hfp-card');if(!a||e.metaKey||e.ctrlKey||e.shiftKey)return;
     var u;try{u=new URL(a.getAttribute('href'),location.href)}catch(x){return}
