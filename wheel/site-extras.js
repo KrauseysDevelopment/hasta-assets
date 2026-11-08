@@ -331,7 +331,44 @@
     if(!pl||pl.nextElementSibling!==native){if(pl)pl.remove();pl=document.createElement('div');pl.id='hf-cartlist';pl.innerHTML='<div class="hfc__list"></div>';native.parentNode.insertBefore(pl,native);bindList(pl.querySelector('.hfc__list'));if(ecwid())cartGet(render)}
     document.documentElement.classList.add('hf-cartlist-on');
   }
-  setInterval(function(){css();badge();cartPage()},700);
+  // Checkout (Zach 2026-11-08): only one way to get an order (pickup at Main Outlet), so don't make people choose it.
+  // On the delivery step, if Main Outlet is the only option and already selected, continue automatically (once per
+  // visit to the step, so "Change method" still works). The empty "Shipping/Pickup options" previews are hidden.
+  var autoKey='hfAutoPickup';
+  function pickupSkip(){
+    if(!/\/products\/checkout\/delivery/.test(location.pathname)){if(!/\/products\/checkout/.test(location.pathname))try{sessionStorage.removeItem(autoKey)}catch(e){}return}
+    var step=document.querySelector('.ec-cart-step--delivery.ec-cart-step--current');if(!step)return;
+    var radios=[].filter.call(step.querySelectorAll('input[type=radio]'),function(r){return r.offsetParent});
+    if(radios.length!==1||!radios[0].checked||!/Main Outlet/i.test(step.textContent))return;
+    try{if(sessionStorage.getItem(autoKey))return;sessionStorage.setItem(autoKey,'1')}catch(e){return}
+    var btn=[].find.call(step.querySelectorAll('button'),function(b){return b.offsetParent&&/Continue/i.test(b.textContent)});
+    if(btn)btn.click();
+  }
+  // Ecwid's own order summaries (checkout sidebar, confirmation): one "Custom pair" line per sole, its strap folded in.
+  function summary(){
+    var items=[].filter.call(document.querySelectorAll('.ec-cart-item:not(.ec-cart-item--summary)'),function(i){return !i.closest('#hf-cartlist')});
+    if(!items.length)return;
+    var title=function(i){return ((i.querySelector('.ec-cart-item__title')||{}).textContent||'').trim()};
+    var opt=function(i,k){var m=new RegExp((k==='Color'?'Colou?r':k)+':\\s*([^:]+?)(?=\\s*(?:Colou?r|Size):|$)').exec(((i.querySelector('.ec-cart-item__options')||{}).textContent||'').replace(/\s+/g,' ').trim());return m?m[1].trim():''};
+    var straps=items.filter(function(i){return /^Strap - (Adult|Kids)$/.test(title(i))});
+    items.forEach(function(i){
+      var t=title(i);
+      if(/^Strap - (Adult|Kids)$/.test(t)){i.style.display='none';return}
+      if(!/^Sole - (Adult|Kids)$/.test(t)||i.dataset.hfPair)return;
+      var size=opt(i,'Size'),sole=opt(i,'Color'),st=null;
+      for(var k=0;k<straps.length;k++)if(!straps[k].dataset.hfUsed&&opt(straps[k],'Size')===size){st=straps[k];st.dataset.hfUsed='1';break}
+      var tl=i.querySelector('.ec-cart-item__title'),op=i.querySelector('.ec-cart-item__options');
+      if(tl)tl.textContent='Custom pair';
+      if(op)op.textContent=sole+' sole · '+(st?opt(st,'Color'):'?')+' strap · '+sizeLabel(size);
+      var img=i.querySelector('.ec-cart-item__picture img, img');if(img&&st){var u=photo(sole,opt(st,'Color'));if(img.getAttribute('src')!==u){img.setAttribute('src',u);img.removeAttribute('srcset')}}
+      i.dataset.hfPair='1';
+    });
+    if(lastCount!==null)[].forEach.call(document.querySelectorAll('.ec-cart-item-sum--items .form-control__select-text, .ec-cart-item-sum--items'),function(e){
+      if(e.children.length)return;var want=lastCount+(lastCount===1?' item':' items');if(/^\d+ items?$/.test(e.textContent.trim())&&e.textContent.trim()!==want)e.textContent=want});
+  }
+  CSS+='.ec-cart-step--delivery.ec-cart-step--empty{display:none!important}'+
+    '.ec-cart-step--delivery.ec-cart-step--done .ec-cart-step__change{display:none!important}';
+  setInterval(function(){css();badge();cartPage();pickupSkip();summary()},500);
   function note(msg){if(drawer){var n=drawer.querySelector('.hfb__note');if(msg){n.textContent=msg;n.hidden=false}else n.hidden=true}var pl=document.getElementById('hf-cartlist');if(pl&&msg){var m=pl.querySelector('.hfc__msg');if(!m){m=document.createElement('p');m.className='hfb__note hfc__msg';pl.insertBefore(m,pl.firstChild)}m.textContent=msg}}
   function open(note){
     if(onCartPage())return;css();build();
@@ -486,8 +523,9 @@
       var us=null;for(var i=0;i<sel.options.length;i++){var o=sel.options[i];if(o.value==='US'||/^United States( of America)?$/i.test(o.text.trim())){us=o;break}}
       if(!us)return;sel.dataset.hfUs='1';
       var top=us.cloneNode(true);top.dataset.hfClone='1';
-      var first=sel.options[0],after=first&&!first.value?first.nextSibling:first;sel.insertBefore(top,after);
-      if(!sel.value||(first&&!first.value&&sel.selectedIndex===0)){sel.value=us.value;sel.dispatchEvent(new Event('input',{bubbles:true}));sel.dispatchEvent(new Event('change',{bubbles:true}))}
+      var first=sel.options[0],ph=first&&(!first.value||/please/i.test(first.text));
+      sel.insertBefore(top,ph?first.nextSibling:first);
+      // Not auto-selected: Ecwid's visible label doesn't follow a scripted value, so the customer picks it (it's first).
     });
   }
   function go(){css();home();var r=document.getElementById('ec-instantsite-website');if(r&&!r.__vue_app__)return;footer();copy();usFirst()}
