@@ -460,6 +460,7 @@
   var RULES=[
     [rx("Mixed to our supplier's true Pantone palette, from Hot Pink to Navy."),'Bright, bold colors, from Hot Pink to Navy.'],
     [rx('330+ Combinations'),'330 Combinations'],
+    [rx('330+ combos'),'330 combos'],
     [rx('Beach-Built Comfort'),'The Fit'],
     [rx('Cushioned footbed, soft no-rub strap. Sand, pool deck, boardwalk.'),'A cushioned footbed and a soft, no-rub strap, in adult and kids sizes. Made for sand, pool decks, boardwalks, and the walk back to the car with wet feet. Fits true to size.'],
     [rx('Spin for your sole, spin for your strap, pick your size.'),'Pick your sole, pick your strap, pick your size.'],
