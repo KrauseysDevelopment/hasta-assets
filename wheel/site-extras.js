@@ -10,7 +10,7 @@
     {n:'Hasta T-Shirts',m:'From $24.99 &middot; 3 designs',h:'/products/t-shirts',i:'https://d2j6dbq0eux0bg.cloudfront.net/images/142623305/products/874635877/6368223365.jpg'}
   ];
   // Hidden categories: the two inventory bins, plus an empty duplicate "Tote Bag" (the totes live in "Hasta Tote Bags").
-  var BIN_CATS=['208164304','208164334','208164089'], BIN_SLUGS=['adult-sole','kid-strap','tote-bag'];
+  var BIN_CATS=['208164304','208164334','208164089','208661035'], BIN_SLUGS=['adult-sole','kid-strap','tote-bag','hasta-fans'];  // 208661035 = Hasta Fans, hidden while priced $0.00 (remove when Zach prices it)
   var CSS=BIN_CATS.map(function(c){return '.grid-category--id-'+c}).join(',')+'{display:none!important}'+
     '#hf-merch{margin:56px auto 0}#hf-merch .hfm-head{text-align:center;margin:0 20px 6px}'+
     '#hf-merch .hfm-eyebrow{margin:0 0 8px;font-size:.74rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#13C2BB}'+
@@ -37,7 +37,7 @@
   var SHOP=[
     ['Flip flop favorites','/shop-pairs'],['Build your own pair','/#wheel'],
     ['T-Shirts','/products/t-shirts'],['Stickers','/products/stickers'],['Air Fresheners','/products/air-fresheners'],
-    ['Tote Bags','/products/hasta-tote-bags'],['Hasta Fans','/products/hasta-fans'],['Shop all','/products']
+    ['Tote Bags','/products/hasta-tote-bags'],['Shop all','/shop-pairs']
   ];
   function menuHtml(cls){return SHOP.map(function(s){return '<a class="'+cls+'" href="'+s[1]+'">'+s[0]+'</a>'}).join('')}
   var dd,ddHost,ddT;
@@ -412,7 +412,7 @@
   // FAQ sizing answer (the FAQ page is an editor section; patched here so it's live without a publish).
   function faq(){Array.prototype.forEach.call(document.querySelectorAll('details.hf-faq'),function(d){var sm=d.querySelector('summary'),p=d.querySelector('p');
     if(sm&&p&&/What sizes do you carry/.test(sm.textContent)&&!p.dataset.hf){p.dataset.hf='1';
-      p.textContent='Adult sizes are men\u2019s sizes 5 through 12, and every size button shows both: M10 / W9 means men\u2019s 10 or women\u2019s 9. Women, pick the adult size one number above your usual size (a women\u2019s 9 is an Adult 10). Kids sizes are 11, 12, 13, 1, 2 and 3. Kids 11 and Adult 11 are different shoes, so sizes always show their group. If you are between sizes we suggest sizing up.'}})}
+      p.textContent='Adult sizes are men\u2019s sizes 5 through 12, and every size button shows both: M10 / W9 means men\u2019s 10 or women\u2019s 9. Women, pick the adult size one number above your usual size (a women\u2019s 9 is an Adult 10). Kids sizes are 11, 12, 13, 1, 2 and 3. Kids 11 and Adult 11 are different shoes, so sizes always show their group. They fit true to size; if you are between sizes we suggest sizing up.'}})}
   copy();faq();setInterval(function(){copy();faq()},1000);
   document.addEventListener('click',function(e){
     var a=e.target.closest&&e.target.closest('a.hfp-card');if(!a||e.metaKey||e.ctrlKey||e.shiftKey)return;
@@ -422,4 +422,73 @@
     var nm=a.querySelector('.hfp-name'),im=a.querySelector('img');
     qOpen(sole,strap,nm?nm.textContent.trim():sole+' / '+strap,im&&im.src,a.getAttribute('href'));
   },true);
+})();
+
+
+/* ===================================================================================================
+   7. Feedback fixes (Ryan + Zach, 2026-11-07).
+   - Footer "Helpful links" had no href: give each its store page. "View All" goes to /shop-pairs (pairs + merch).
+   - Copy: one number (330 = 15 soles x 22 straps); no supplier / molded / Pantone / PMS; home "The Fit" card;
+     "Pick your sole" (spin buttons are gone). Text lives in editor sections, so it's patched here until a publish.
+   - Top scrolling banner on the home page only.
+   - Hasta Fans ($0.00) hidden until priced: product card + Add to Bag.
+   - Checkout: United States first in every country list, and chosen by default (US-only shipping for now).
+   =================================================================================================== */
+(function(){
+  var FOOT={'Search Products':'/products/search','Account':'/products/account','Track Orders':'/products/account/orders',
+    'Favorites':'/products/account/favorites','Shopping Bag':'/products/cart','Gift Cards':'/products/gift-card','View All':'/shop-pairs'};
+  var FANS='874633242';
+  var MARQ='Spin the wheel  ✦  15 colors  ✦  330 combos  ✦  Made in the Florida sunshine ☀  ✦  ';
+  var CSS='html:not(.hf-home) [id^="tile-announcement-bar"]{display:none!important}'+
+    'html .ins-tile--announcement-bar .ins-tile__text p::after{content:"'+new Array(9).join(MARQ)+'"}'+
+    '@media(prefers-reduced-motion:reduce){html .ins-tile--announcement-bar .ins-tile__text p::after{content:"Spin the wheel  ✦  15 colors  ✦  330 combos  ✦  Made in the Florida sunshine ☀"}}'+
+    'html .ec-cart--empty .ec-cart__message::after{content:"Your bag is empty.\\A\\A Spin the wheel and build a pair that is yours alone \\2014 15 colors, 330 combinations, made in the Florida sunshine."}'+
+    '.grid-product--id-'+FANS+'{display:none!important}'+
+    '.ec-store__product-page--'+FANS+' .details-product-purchase__add-to-bag,.ec-store__product-page--'+FANS+' .details-product-purchase__checkout,.ec-store__product-page--'+FANS+' .product-details__product-price{display:none!important}'+
+    '.ec-store__product-page--'+FANS+' .product-details__sidebar::after{content:"Coming soon.";display:block;margin-top:14px;font-weight:800;color:#C4008A}';
+  function css(){if(document.getElementById('hf-fix-css'))return;var s=document.createElement('style');s.id='hf-fix-css';s.textContent=CSS;document.head.appendChild(s)}
+  function home(){document.documentElement.classList.toggle('hf-home',location.pathname.replace(/\/+$/,'')==='')}
+  function footer(){
+    Array.prototype.forEach.call(document.querySelectorAll('[id^="tile-footer"] a'),function(a){
+      var k=a.textContent.trim(),h=FOOT[k];if(!h)return;
+      if(a.getAttribute('href')!==h)a.setAttribute('href',h);
+    });
+  }
+  // Text fixes, matched across line breaks; markup is left alone.
+  var W='\\s+';
+  function rx(str){return new RegExp(str.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\\ |\s+/g,W).replace(/'/g,"['’]"),'g')}
+  var RULES=[
+    [rx("Mixed to our supplier's true Pantone palette, from Hot Pink to Navy."),'Bright, bold colors, from Hot Pink to Navy.'],
+    [rx('330+ Combinations'),'330 Combinations'],
+    [rx('Beach-Built Comfort'),'The Fit'],
+    [rx('Cushioned footbed, soft no-rub strap. Sand, pool deck, boardwalk.'),'A cushioned footbed and a soft, no-rub strap, in adult and kids sizes. Made for sand, pool decks, boardwalks, and the walk back to the car with wet feet. Fits true to size.'],
+    [rx('Spin for your sole, spin for your strap, pick your size.'),'Pick your sole, pick your strap, pick your size.'],
+    [rx('more than 225 combinations'),'330 combinations'],
+    [rx('Every color is matched to a Pantone reference by our supplier, and we list the PMS number next to each one so you know exactly what you are getting.'),'Every photo on this site is the real product, not a rendering, so what you see is the actual color.'],
+    [rx('heat is hard on any molded footwear.'),'heat is hard on any flip flop.'],
+    [rx('Fifteen signature colors, matched to true Pantone references by our supplier, plus a'),'Fifteen signature colors, plus a'],
+    [rx('screen approximations of Pantone references supplied by our manufacturer.'),'screen approximations.'],
+    [rx(' Pantone numbers are listed for each color so you can verify against a chip.'),'']
+  ];
+  var KEY=/supplier|Pantone|PMS|molded|225|330\+|Beach-Built|Cushioned footbed|Spin for your sole/;
+  function copy(){
+    var main=document.querySelector('.ins-tiles--main')||document.body;if(!KEY.test(main.textContent))return;
+    var w=document.createTreeWalker(main,NodeFilter.SHOW_TEXT,null),n,hits=[];
+    while((n=w.nextNode()))if(KEY.test(n.nodeValue))hits.push(n);
+    hits.forEach(function(t){var v=t.nodeValue;RULES.forEach(function(r){v=v.replace(r[0],r[1])});if(v!==t.nodeValue)t.nodeValue=v});
+  }
+  // Checkout country lists: United States on top and selected when nothing is chosen yet.
+  function usFirst(){
+    if(!/\/products\//.test(location.pathname))return;
+    Array.prototype.forEach.call(document.querySelectorAll('select'),function(sel){
+      if(sel.options.length<50||sel.dataset.hfUs)return;
+      var us=null;for(var i=0;i<sel.options.length;i++){var o=sel.options[i];if(o.value==='US'||/^United States( of America)?$/i.test(o.text.trim())){us=o;break}}
+      if(!us)return;sel.dataset.hfUs='1';
+      var top=us.cloneNode(true);top.dataset.hfClone='1';
+      var first=sel.options[0],after=first&&!first.value?first.nextSibling:first;sel.insertBefore(top,after);
+      if(!sel.value||(first&&!first.value&&sel.selectedIndex===0)){sel.value=us.value;sel.dispatchEvent(new Event('input',{bubbles:true}));sel.dispatchEvent(new Event('change',{bubbles:true}))}
+    });
+  }
+  function go(){css();home();var r=document.getElementById('ec-instantsite-website');if(r&&!r.__vue_app__)return;footer();copy();usFirst()}
+  go();document.readyState==='loading'&&document.addEventListener('DOMContentLoaded',go);setInterval(go,700);
 })();
