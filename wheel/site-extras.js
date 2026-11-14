@@ -191,6 +191,10 @@
   '.hfb__title{margin:0;font-size:1.35rem;font-weight:900}'+
   '.hfb__x{border:0;background:none;font-size:28px;line-height:1;cursor:pointer;color:#0E0E11;padding:4px 8px}'+
   '.hfb__note{margin:0;padding:10px 22px;background:#E7FAF8;color:#0B6E69;font-size:.9rem;font-weight:700}'+
+  '.hfb__warn{margin:12px 0;padding:12px 14px;border-radius:10px;background:#FFE8F6;color:#7A0056;font-size:.9rem;font-weight:700;line-height:1.4}.hfb__warn a{color:inherit;text-decoration:underline}'+
+  '.hfb__item--odd .hfb__name{color:#C4008A}.hfb__rm{margin-top:6px;padding:0;border:0;background:none;color:#0E0E11;font:inherit;font-size:.82rem;font-weight:700;text-decoration:underline;cursor:pointer}'+
+  'html.hf-unpaired .ec-store__cart-page .ec-cart__checkout .form-control--primary{display:none!important}'+
+  '.hfb__btn--go[disabled]{opacity:.45;cursor:not-allowed}'+
   '.hfb__list{flex:1;overflow:auto;padding:8px 22px}'+
   '.hfb__item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid rgba(14,14,17,.08)}'+
   '.hfb__img{flex:0 0 72px;height:72px;border-radius:12px;background:#F4F2EF;overflow:hidden}.hfb__img img{width:100%;height:100%;object-fit:cover;display:block}'+
@@ -275,6 +279,7 @@
       Array.prototype.forEach.call(el.querySelectorAll('button'),function(x){x.disabled=true});
       if(act==='p+'){addPair(d.sole,d.strap,d.size,function(ok,msg){again(ok?'':msg)},1);return}
       if(act==='p-'||act==='prm'){removePair(d.sole,d.strap,d.size,act==='prm'?+d.q:1,function(){again('')});return}
+      if(act==='orm'){cartGet(function(c){var ids=d.kind==='sole'?[BINS.soleAdult,BINS.soleKids]:[BINS.strapAdult,BINS.strapKids],hit=(c.items||[]).filter(function(it){return ids.indexOf(it.product.id)>-1&&colorOf(it)+'|'+(it.options||{}).Size===d.k})[0];if(!hit){again('');return}removeN(hit.product.id,hit.options||{},+d.n,function(){again('')})});return}
       cartGet(function(c){var it=(c.items||[])[+d.i];if(!it){again('');return}
         var q=it.quantity,opts=it.options||{},id=it.product.id;
         if(act==='l+'){Ecwid.Cart.addProduct({id:id,quantity:1,options:opts,callback:function(ok){again(ok?'':'Sorry, no more of that one in stock.')}});return}
@@ -305,7 +310,7 @@
   // Bag contents as customers think of them: one "Custom pair" line per pair (its sole + strap), merch as is.
   // Pairs are matched by the saved color notes first, so two different pairs in the same size can't cross.
   function rowsFor(cart){
-    var items=(cart&&cart.items)||[],rows=[],count=0;
+    var items=(cart&&cart.items)||[],rows=[],count=0,un=0;
     var soleQ={},strapQ={},soleP={},strapP={},other=[],key=function(c,z){return c+'|'+z};
     items.forEach(function(it){var id=it.product.id,o=it.options||{},k=key(colorOf(it),o.Size);
       if(id===BINS.soleAdult||id===BINS.soleKids){soleQ[k]=(soleQ[k]||0)+it.quantity;soleP[k]=it.product.price||0}
@@ -315,17 +320,18 @@
     var step=function(q,minus,plus,attrs,max){return '<div class="hfb__step" role="group" aria-label="Quantity"><button type="button" data-act="'+minus+'" '+attrs+' aria-label="One fewer">&minus;</button><span aria-live="polite">'+q+'</span><button type="button" data-act="'+plus+'" '+attrs+' aria-label="One more"'+(max&&q>=max?' disabled':'')+'>+</button></div>'};
     pairs.forEach(function(p){count+=p.qty;var at='data-sole="'+esc(p.sole)+'" data-strap="'+esc(p.strap)+'" data-size="'+esc(p.size)+'" data-q="'+p.qty+'"';
       rows.push('<div class="hfb__item"><div class="hfb__img"><img alt="" src="'+esc(photo(p.sole,p.strap))+'"></div><div class="hfb__meta"><div class="hfb__name">Custom pair</div><div class="hfb__opts">'+esc(p.sole)+' sole &middot; '+esc(p.strap)+' strap<br>'+esc(sizeLabel(p.size))+'</div>'+step(p.qty,'p-','p+',at,10)+'</div><div class="hfb__price">'+money(p.unit*p.qty)+'<button type="button" class="hfb__rm" data-act="prm" '+at+'>Remove</button></div></div>')});
-    Object.keys(soleQ).forEach(function(a){if(soleQ[a]>0){count+=soleQ[a];var p=a.split('|');rows.push('<div class="hfb__item"><div class="hfb__img"></div><div class="hfb__meta"><div class="hfb__name">Sole only</div><div class="hfb__opts">'+esc(p[0])+' &middot; '+esc(p[1])+(soleQ[a]>1?' &middot; Qty '+soleQ[a]:'')+'</div></div><div class="hfb__price">'+money((soleP[a]||0)*soleQ[a])+'</div></div>')}});
-    Object.keys(strapQ).forEach(function(b){if(strapQ[b]>0){var p=b.split('|');rows.push('<div class="hfb__item"><div class="hfb__img"></div><div class="hfb__meta"><div class="hfb__name">Strap only</div><div class="hfb__opts">'+esc(p[0])+' &middot; '+esc(p[1])+'</div></div><div class="hfb__price">'+money((strapP[b]||0)*strapQ[b])+'</div></div>')}});
+    Object.keys(soleQ).forEach(function(a){if(soleQ[a]>0){count+=soleQ[a];var p=a.split('|');un+=soleQ[a];rows.push('<div class="hfb__item hfb__item--odd"><div class="hfb__img"></div><div class="hfb__meta"><div class="hfb__name">Sole only (needs a strap)</div><div class="hfb__opts">'+esc(p[0])+' &middot; '+esc(p[1])+(soleQ[a]>1?' &middot; Qty '+soleQ[a]:'')+'</div><button type="button" class="hfb__rm" data-act="orm" data-kind="sole" data-k="'+esc(a)+'" data-n="'+soleQ[a]+'">Remove</button></div><div class="hfb__price">'+money((soleP[a]||0)*soleQ[a])+'</div></div>')}});
+    Object.keys(strapQ).forEach(function(b){if(strapQ[b]>0){var p=b.split('|');un+=strapQ[b];rows.push('<div class="hfb__item hfb__item--odd"><div class="hfb__img"></div><div class="hfb__meta"><div class="hfb__name">Strap only (needs a sole)</div><div class="hfb__opts">'+esc(p[0])+' &middot; '+esc(p[1])+(strapQ[b]>1?' &middot; Qty '+strapQ[b]:'')+'</div><button type="button" class="hfb__rm" data-act="orm" data-kind="strap" data-k="'+esc(b)+'" data-n="'+strapQ[b]+'">Remove</button></div><div class="hfb__price">'+money((strapP[b]||0)*strapQ[b])+'</div></div>')}});
     other.forEach(function(it){count+=(it.product.id===GIFT_ID?1:it.quantity);var gift=it.product.id===GIFT_ID;var idx=items.indexOf(it),o=it.options||{},opts=gift?'Mailed gift card &middot; '+money(it.quantity*(it.product.price||1)):Object.keys(o).map(function(k){return esc(k==='Sticker Number'?'Design':k)+': '+esc(o[k])}).join(' &middot; '),stk=window.HF_STICKER_PHOTO&&window.HF_STICKER_PHOTO(it);
       rows.push('<div class="hfb__item"><div class="hfb__img">'+(function(){var m=it.product.mediaItem||{},u=stk||m.image160pxUrl||m.image400pxUrl||it.product.imageUrl;return u?'<img alt="" src="'+esc(u)+'">':''})()+'</div><div class="hfb__meta"><div class="hfb__name">'+esc(it.product.name)+'</div><div class="hfb__opts">'+opts+'</div>'+(gift?'':step(it.quantity,'l-','l+','data-i="'+idx+'"',0))+'</div><div class="hfb__price">'+money((it.product.price||0)*it.quantity)+'<button type="button" class="hfb__rm" data-act="lrm" data-i="'+idx+'">Remove</button></div></div>')});
     var pairCount=pairs.reduce(function(a,p){return a+p.qty},0);
-    return {pairs:pairCount,html:rows.length?rows.join(''):'<p class="hfb__empty">Your bag is empty.</p>',sub:items.reduce(function(a,it){return a+(it.product.price||0)*it.quantity},0),count:count,empty:!items.length};
+    if(un)rows.unshift('<p class="hfb__warn" role="alert">Each pair of flip flops is one sole and one strap in the same size, and they can\'t be bought on their own. Remove the item marked below, or <a href="/">finish the pair on the wheel</a>, to check out.</p>');
+    return {unpaired:un,pairs:pairCount,html:rows.length?rows.join(''):'<p class="hfb__empty">Your bag is empty.</p>',sub:items.reduce(function(a,it){return a+(it.product.price||0)*it.quantity},0),count:count,empty:!items.length};
   }
   var lastCount=null;
   function render(cart){
-    var r=rowsFor(cart);lastCount=r.count;badge();document.documentElement.classList.toggle('hf-has-pairs',r.pairs>0);
-    if(drawer){drawer.querySelector('.hfb__list').innerHTML=r.html;drawer.querySelector('.hfb__subv').textContent=money(r.sub);drawer.querySelector('[data-act=checkout]').disabled=r.empty}
+    var r=rowsFor(cart);lastCount=r.count;badge();document.documentElement.classList.toggle('hf-has-pairs',r.pairs>0);document.documentElement.classList.toggle('hf-unpaired',r.unpaired>0);
+    if(drawer){drawer.querySelector('.hfb__list').innerHTML=r.html;drawer.querySelector('.hfb__subv').textContent=money(r.sub);drawer.querySelector('[data-act=checkout]').disabled=r.empty||r.unpaired>0}
     var pl=document.getElementById('hf-cartlist');if(pl)pl.querySelector('.hfc__list').innerHTML=r.html;
   }
   // Header bag count = pairs + merch (a pair is two bin lines underneath).
@@ -388,7 +394,12 @@
       [].forEach.call(a.childNodes,function(t){if(t.nodeType===3&&/\(\d+\)/.test(t.nodeValue)){var w=t.nodeValue.replace(/\(\d+\)/,'('+n+')');if(w!==t.nodeValue)t.nodeValue=w}})});
   }
   // (2026-11-14) Shipping is live now, so the delivery row and its "Change" link stay visible. pickupSkip() only fires when Main Outlet pickup is the ONLY option.
-  setInterval(function(){css();badge();cartPage();presalePage();pickupSkip();summary();counts()},500);
+  // Unpaired soles/straps (2026-11-14): straps are $0 and soles alone aren't a product, so a bag with an
+  // unmatched one can't reach checkout. Drawer Checkout is disabled (render), the native cart Checkout button is
+  // hidden by CSS on html.hf-unpaired, and any checkout URL bounces back to the bag while it's unpaired.
+  var guardAt=0;function pairGuard(){if(!/\/products\/checkout/.test(location.pathname)||!ecwid())return;var t=Date.now();if(t-guardAt<1500)return;guardAt=t;
+    cartGet(function(c){render(c);if(rowsFor(c).unpaired>0)Ecwid.openPage('cart')})}
+  setInterval(function(){css();badge();cartPage();presalePage();pickupSkip();summary();counts();pairGuard()},500);
   function note(msg){if(drawer){var n=drawer.querySelector('.hfb__note');if(msg){n.textContent=msg;n.hidden=false}else n.hidden=true}var pl=document.getElementById('hf-cartlist');if(pl&&msg){var m=pl.querySelector('.hfc__msg');if(!m){m=document.createElement('p');m.className='hfb__note hfc__msg';pl.insertBefore(m,pl.firstChild)}m.textContent=msg}}
   function open(note){
     if(onCartPage())return;css();build();
@@ -566,7 +577,8 @@
    =================================================================================================== */
 (function(){
   var ART='https://cdn.jsdelivr.net/gh/KrauseysDevelopment/hasta-assets@3a274c1961b538b7a75c251b5fa9120855e928d9/theme/';
-  var PINK=ART+'palm-pink.png',TEAL=ART+'palm-teal.png',LOGO=ART+'wear-hasta-run-fasta.jpg';
+  var ART2='https://cdn.jsdelivr.net/gh/KrauseysDevelopment/hasta-assets@3b942a05fc0152a792d5849b4995225e8cc23900/theme/';
+  var PINK=ART+'palm-pink.png',TEAL=ART+'palm-teal.png',LOGO=ART+'wear-hasta-run-fasta.jpg',RUNC=ART2+'run-fasta-clear.webp';
   var TAG='Wear Hasta Run Fasta™',RISK='(Run in flip flops at your own risk)';
   var CSS=
     '.hf-palm{position:absolute;pointer-events:none;user-select:none;z-index:0;height:auto}'+
@@ -585,6 +597,9 @@
     '.hf-run__risk{margin:4px 0 0;font-size:.95rem;color:#5a5664;font-style:italic}'+
     '.hf-run .hf-palm{width:min(170px,20vw);bottom:20px;opacity:1}.hf-run .hf-palm--l{left:4%}.hf-run .hf-palm--r{right:4%}'+
     '@media(max-width:700px){.hf-run .hf-palm{display:none}}'+
+    '.hf-bandrun{text-align:center;margin:0 auto 26px}.hf-bandrun img{display:block;width:min(340px,78vw);height:auto;margin:0 auto}.hf-bandrun p{margin:6px 0 0;color:#fff;font-weight:800;font-size:.95rem;letter-spacing:.02em}'+
+    '#hf-ideas{background:#fff;text-align:center;padding:30px 16px 34px}'+
+    '.hf-ideas__btn{display:inline-block;background:#F607B0;color:#0E0E11;font-weight:900;font-size:1.05rem;padding:15px 30px;border-radius:999px;text-decoration:none;box-shadow:0 8px 20px rgba(246,7,176,.28);transition:background .15s,color .15s}.hf-ideas__btn:hover{background:#0E0E11;color:#fff}'+
     '.hf-foot-run{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;text-align:center;padding:20px 16px 26px;margin:0;background:#0E0E11;color:#fff}'+
     '.hf-foot-run img{height:54px;width:auto}.hf-foot-run b{display:block;font-size:1.1rem;font-weight:900}.hf-foot-run small{display:block;opacity:.75;font-size:.85rem}';
   function css(){if(document.getElementById('hf-z8-css'))return;var s=document.createElement('style');s.id='hf-z8-css';s.textContent=CSS;document.head.appendChild(s)}
@@ -594,9 +609,14 @@
     d.appendChild(img(LOGO,'hf-run__logo','Wear Hasta Run Fasta (Run in flip flops at your own risk)'));
     d.insertAdjacentHTML('beforeend','<p class="hf-run__tag">'+TAG+'</p><p class="hf-run__risk">'+RISK+'</p>');palms(d);return d}
   // Nav label "Flip Flops" is set in the editor (Header & Menu), not here: a runtime swap flashed the old label and reflowed the nav on every page load.
-  function band(){var b=document.getElementById('hf-band');if(!b)return;palms(b);
+  // Flip Flops page (Zach 2026-11-14): no palms on the band; Run Fasta moved INTO the band, smaller, on a
+  // transparent cut of the logo (its own section below the band is gone). Pre-built pairs tile is hidden in
+  // head.css (first paint) and replaced by one "Can't decide?" button to /shop-pairs right after the wheel.
+  function band(){var b=document.getElementById('hf-band');if(!b)return;
     var cards=b.querySelector('.hf-cards');if(cards&&!b.querySelector('.hf-quality'))cards.insertAdjacentHTML('afterend','<ul class="hf-quality"><li>High quality</li><li>Long lasting: won’t curl or stretch</li><li>Superior fit &amp; finish</li></ul>');
-    var tile=b.closest('[id^="tile-"]');if(tile&&!document.getElementById('hf-run-home')){var r=runBlock();r.id='hf-run-home';tile.parentNode.insertBefore(r,tile.nextSibling)}}
+    var q=b.querySelector('.hf-quality');if(q&&!b.querySelector('.hf-bandrun'))q.insertAdjacentHTML('afterend','<div class="hf-bandrun"><img src="'+RUNC+'" alt="Wear Hasta Run Fasta (Run in flip flops at your own risk)" width="760" height="523" loading="lazy" decoding="async"><p>'+TAG+'</p></div>')}
+  function ideas(){var w=document.getElementById('tile-hf-wheel');if(!w||document.getElementById('hf-ideas'))return;
+    w.insertAdjacentHTML('afterend','<section id="hf-ideas" aria-label="Pair ideas"><a class="hf-ideas__btn" href="/shop-pairs">Can’t decide? Click here for some ideas <span aria-hidden="true">→</span></a></section>')}
   function hero(){Array.prototype.forEach.call(document.querySelectorAll('.hfp-hero'),palms);
     Array.prototype.forEach.call(document.querySelectorAll('.hfp-eyebrow'),function(e){if(e.dataset.hfPalm)return;e.dataset.hfPalm='1';
       e.insertBefore(img(PINK,'hf-palmi'),e.firstChild);e.appendChild(img(TEAL,'hf-palmi hf-palm--flip'))})}
@@ -622,7 +642,7 @@
   function bandFit(){var b=document.getElementById('hf-band');if(!b)return;Array.prototype.forEach.call(b.querySelectorAll('.hf-card p'),function(p){
     if(/^A cushioned footbed/.test(p.textContent.trim())&&!p.dataset.hfz){p.dataset.hfz='1';p.textContent='High quality and long lasting: won’t curl, won’t stretch. A cushioned footbed and a soft, no-rub strap, in adult and kids sizes. Fits true to size.'}})}
   function go(){css();var r=document.getElementById('ec-instantsite-website');if(r&&!r.__vue_app__)return;
-    band();bandFit();hero();foot();about();faq()}
+    band();ideas();bandFit();hero();foot();about();faq()}
   go();document.readyState==='loading'&&document.addEventListener('DOMContentLoaded',go);setInterval(go,800);
 })();
 
