@@ -229,7 +229,8 @@
   '.hfq__s:hover{border-color:#13C2BB}.hfq__s.is-on{background:#F607B0;border-color:#F607B0;color:#0E0E11}'+
   '.hfq__msg{min-height:1.3em;margin:12px 0 0;font-size:.9rem;color:#B00060;font-weight:700}'+
   '.hf-presale{margin:10px 0;padding:9px 12px;border-radius:10px;background:#FDE7F6;border-left:4px solid #F607B0;color:#0E0E11;font-size:.88rem;line-height:1.4}.hf-presale b{color:#C4008A;margin-right:6px;text-transform:uppercase;letter-spacing:.04em;font-size:.8rem}'+
-  'html:not(.hf-has-pairs) .hfb__foot .hf-presale,html:not(.hf-has-pairs) .hf-presale--page{display:none}.hf-presale--page{margin:0 0 18px;font-size:.95rem}'+
+  'html:not(.hf-has-pairs) .hfb__foot .hf-presale,html:not(.hf-has-pairs) .hf-presale--page{display:none!important}'+
+  '.ec-store .hf-presale--page,div.hf-presale--page{display:block;box-sizing:border-box;width:100%;margin:0 0 22px;padding:12px 16px;border-radius:10px;background:#FDE7F6;border-left:4px solid #F607B0;color:#0E0E11;font-size:1rem;line-height:1.45}.hf-presale--page b{color:#C4008A!important;margin-right:6px;text-transform:uppercase;letter-spacing:.04em;font-size:.82rem;font-weight:900}'+
   '.hfq__add{margin-top:10px}.hfq__add[disabled]{opacity:.5;cursor:not-allowed}'+
   '.hfq__wheel{display:block;text-align:center;margin-top:12px;font-weight:700;color:#0B8F89;text-decoration:none}.hfq__wheel:hover{text-decoration:underline}'+
   '@media (prefers-reduced-motion:reduce){.hfb,.hfq,.hfb-scrim{transition:none}}';
@@ -330,8 +331,11 @@
   // Bag page: Ecwid lists every sole and strap separately (and collapses 4+ lines into a thumbnail strip).
   // Show the same pair list as the drawer instead; Ecwid's totals, gift card and checkout stay.
   // Pre-sale notice on the bag/checkout pages whenever the bag holds a pair (Zach 2026-11-14).
-  function presalePage(){if(!/\/products\/(cart|checkout)/.test(location.pathname))return;var c=document.querySelector('.ec-store .ec-cart');if(!c||c.querySelector(':scope>.hf-presale'))return;
-    c.insertAdjacentHTML('afterbegin',PRESALE.replace('hf-presale','hf-presale hf-presale--page'))}
+  function presalePage(){if(!/\/products\/(cart|checkout)/.test(location.pathname))return;var c=document.querySelector('.ec-store .ec-cart');if(!c)return;
+    var prev=c.previousElementSibling;if(prev&&prev.classList.contains('hf-presale--page'))return;
+    var old=document.querySelector('.hf-presale--page');if(old)old.remove();
+    var d=document.createElement('div');d.className='hf-presale hf-presale--page';d.setAttribute('role','note');d.innerHTML='<b>Pre-sale</b> Flip flops ship around the first week of December.';
+    c.parentNode.insertBefore(d,c)}
   function cartPage(){
     if(!onCartPage()){document.documentElement.classList.remove('hf-cartlist-on');return}
     var native=document.querySelector('.ec-store__cart-page .ec-cart__products');if(!native)return;
