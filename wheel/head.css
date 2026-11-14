@@ -1,0 +1,32 @@
+/* Hasta Flip Flops: first-paint CSS loaded from the eCom head slot
+   (Website > Advanced > Header meta tags) as a render-blocking <link>,
+   so nothing here flashes in late. The inline <style> in that slot keeps
+   the ticker + header rules; anything new goes here (no 3000-char cap).
+
+   Product + category headings: gradient text between two palms
+   (Nick 2026-11-14). Store root (category 0) has its own hero; cart and
+   checkout titles are left alone. */
+.ec-store__category-page:not(.ec-store__category-page--0) .page-title__name,
+.ec-store__product-page .product-details__product-title{
+  display:inline-flex;align-items:center;gap:.32em;
+}
+.ec-store__category-page:not(.ec-store__category-page--0) .page-title__name::before,
+.ec-store__category-page:not(.ec-store__category-page--0) .page-title__name::after,
+.ec-store__product-page .product-details__product-title::before,
+.ec-store__product-page .product-details__product-title::after{
+  content:"";flex:0 0 auto;width:.92em;height:1.15em;
+  background:url(../theme/palm-pink-sm.png) center/contain no-repeat;
+}
+.ec-store__category-page:not(.ec-store__category-page--0) .page-title__name::after,
+.ec-store__product-page .product-details__product-title::after{
+  background-image:url(../theme/palm-teal-sm.png);
+  transform:scaleX(-1);
+}
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  .ec-store__category-page:not(.ec-store__category-page--0) .page-title__name,
+  .ec-store__product-page .product-details__product-title{
+    background:linear-gradient(90deg,#F607B0 0%,#A23BE0 52%,#0FB3AC 100%);
+    -webkit-background-clip:text;background-clip:text;
+    color:transparent!important;-webkit-text-fill-color:transparent;
+  }
+}
