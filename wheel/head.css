@@ -99,3 +99,6 @@ html body #tile-hf-wheel{
     color:transparent;-webkit-text-fill-color:transparent;
   }
 }
+/* Nick 2026-11-14: no "Live preview..." line under Make It Yours. */
+html body #wheel .hf-builder>.hf-sub{display:none!important}
+html body #wheel .hf-builder>.hf-h3{margin-bottom:16px}
