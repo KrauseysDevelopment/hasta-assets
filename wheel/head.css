@@ -123,14 +123,26 @@ html body .hf-credit{margin:0;padding:12px 16px 22px;background:#0E0E11;color:rg
 html body .hf-credit a{color:#13C2BB!important;text-decoration:underline;text-underline-offset:2px}
 html body .hf-credit a:hover{color:#F607B0!important}
 
-/* Store pages (categories, products, Shop all) get the landing page's palm gutters + wash
-   (Zach + Nick 2026-11-14). Bag and checkout stay plain. Same breakpoints as the wheel section. */
-html body .ins-tile--product-browser:has(.ec-store__category-page,.ec-store__product-page){
+/* Palm gutters + wash (Zach + Nick 2026-11-14): every store page (categories, products, Shop all, bag,
+   checkout) plus the FAQ and Contact page tiles. Same breakpoints as the wheel section. */
+html body .ins-tile--product-browser,html body #tile-custom-code-bEH4dG,html body #tile-custom-code-wRKTJZ,html body #tile-contact-us-XB7CZR{
   background:
     url(../theme/palm-strip-l.png) left 14px top 26px/150px auto repeat-y,
     url(../theme/palm-strip-r.png) right 14px top 26px/150px auto repeat-y,
     linear-gradient(135deg,#FFEEF8 0%,#FBFAFC 38%,#FBFAFC 62%,#E6FAF8 100%)!important;
 }
-html body .ins-tile--product-browser:has(.ec-store__category-page,.ec-store__product-page) .ecwid-productBrowser{background:transparent!important}
-@media(max-width:1400px){html body .ins-tile--product-browser:has(.ec-store__category-page,.ec-store__product-page){background-size:96px auto,96px auto,auto!important;background-position:left 4px top 20px,right 4px top 20px,0 0!important}}
-@media(max-width:1180px){html body .ins-tile--product-browser:has(.ec-store__category-page,.ec-store__product-page){background:linear-gradient(160deg,#FFEEF8 0%,#FBFAFC 40%,#FBFAFC 65%,#E6FAF8 100%)!important}}
+html body .ins-tile--product-browser .ecwid-productBrowser{background:transparent!important}
+@media(max-width:1400px){html body .ins-tile--product-browser,html body #tile-custom-code-bEH4dG,html body #tile-custom-code-wRKTJZ,html body #tile-contact-us-XB7CZR{background-size:96px auto,96px auto,auto!important;background-position:left 4px top 20px,right 4px top 20px,0 0!important}}
+@media(max-width:1180px){html body .ins-tile--product-browser,html body #tile-custom-code-bEH4dG,html body #tile-custom-code-wRKTJZ,html body #tile-contact-us-XB7CZR{background:linear-gradient(160deg,#FFEEF8 0%,#FBFAFC 40%,#FBFAFC 65%,#E6FAF8 100%)!important}}
+
+/* "Your Bag" (drawn by ::after on the bag page h1, whose own text is 0px) and "Checkout" (h2) in the
+   title gradient, no palms. Gradient goes on the ::after itself, not the h1, so nothing clips it away. */
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  html body .ec-store__cart-page h1.page-title__name::after,
+  html body .ec-store .ec-cart h2.page-title__name{
+    display:inline-block;
+    background:linear-gradient(90deg,#F607B0 0%,#A23BE0 52%,#0FB3AC 100%);
+    -webkit-background-clip:text;background-clip:text;
+    color:transparent!important;-webkit-text-fill-color:transparent;
+  }
+}
