@@ -779,3 +779,69 @@
   function go(){css();var r=document.getElementById('ec-instantsite-website');if(r&&!r.__vue_app__)return;panel();summary();storeHome()}
   go();document.readyState==='loading'&&document.addEventListener('DOMContentLoaded',go);setInterval(go,600);
 })();
+
+/* ===================================================================================================
+   12. Checkout address suggestions (2026-11-14). Google Places API (New), called straight from the
+   browser. Key lives in Zach's Google Cloud project "Hasta Website" (hasta-website-514720, org
+   hastaflipflops.com); it is a browser key, restricted to https://hastaflipflops.com/* and
+   https://www.hastaflipflops.com/* and to Places API (New) only, so it is safe in page source.
+   Typing 4+ characters in a street address field lists up to 5 US addresses; picking one fills street,
+   city, state and ZIP (Ecwid's Vue fields get real input/change events). One session token per address
+   lookup, so the autocomplete calls are billed as a free session with the one details call.
+   =================================================================================================== */
+(function(){
+  var KEY='AIzaSyBoYxAtf_Uf_wykqQKgYflmJ213Nj0q1us',API='https://places.googleapis.com/v1/';
+  var CSS='.hfa-wrap{position:relative}'+
+    '.hfa-list{position:absolute;left:0;right:0;top:100%;z-index:60;margin:4px 0 0;padding:6px 0 0;list-style:none;background:#fff;border:1px solid rgba(14,14,17,.14);border-radius:12px;box-shadow:0 12px 28px rgba(14,14,17,.14);overflow:hidden}'+
+    '.hfa-list li{padding:10px 14px;font-size:.92rem;line-height:1.3;color:#0E0E11;cursor:pointer}'+
+    '.hfa-list li b{font-weight:700}.hfa-list li span{color:#6B6875}'+
+    '.hfa-list li[aria-selected=true],.hfa-list li:hover{background:#FFEEF8}'+
+    '.hfa-list .hfa-by{cursor:default;padding:6px 14px 8px;font-size:.72rem;color:#6B6875;text-align:right;background:#fff!important}';
+  function css(){if(document.getElementById('hf-addr-css'))return;var s=document.createElement('style');s.id='hf-addr-css';s.textContent=CSS;document.head.appendChild(s)}
+  var esc=function(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+  function uuid(){try{return crypto.randomUUID()}catch(e){return 'hf'+Date.now()+Math.random().toString(16).slice(2)}}
+  function setVal(el,v){if(!el)return;var proto=el.tagName==='SELECT'?HTMLSelectElement.prototype:HTMLInputElement.prototype;
+    var set=Object.getOwnPropertyDescriptor(proto,'value').set;set.call(el,v);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));el.dispatchEvent(new Event('blur',{bubbles:true}))}
+  function scope(inp){return inp.closest('form')||inp.closest('.ec-cart-step')||inp.closest('.ec-store')||document}
+  function country(sc){var c=sc.querySelector('select[name="country-list"], #ec-country');return c&&c.value?String(c.value).toUpperCase():'US'}
+  function bind(inp){
+    if(inp.dataset.hfa)return;inp.dataset.hfa='1';
+    var wrap=inp.closest('.form-control')||inp.parentNode;wrap.classList.add('hfa-wrap');
+    var list=document.createElement('ul');list.className='hfa-list';list.setAttribute('role','listbox');list.id='hfa-'+Math.random().toString(36).slice(2,8);list.hidden=true;wrap.appendChild(list);
+    inp.setAttribute('aria-controls',list.id);inp.setAttribute('aria-autocomplete','list');
+    var token=null,timer=0,items=[],active=-1,seq=0;
+    function close(){list.hidden=true;list.innerHTML='';items=[];active=-1;inp.setAttribute('aria-expanded','false')}
+    function paint(){list.innerHTML=items.map(function(p,i){var f=p.structuredFormat||{},m=(f.mainText||{}).text||(p.text||{}).text||'',s=(f.secondaryText||{}).text||'';
+        return '<li role="option" id="'+list.id+'-'+i+'" aria-selected="'+(i===active)+'" data-i="'+i+'"><b>'+esc(m)+'</b>'+(s?' <span>'+esc(s)+'</span>':'')+'</li>'}).join('')+'<li class="hfa-by" aria-hidden="true">Powered by Google</li>';
+      list.hidden=!items.length;inp.setAttribute('aria-expanded',items.length?'true':'false');
+      if(active>-1)inp.setAttribute('aria-activedescendant',list.id+'-'+active);else inp.removeAttribute('aria-activedescendant')}
+    function lookup(){var q=inp.value.trim();if(q.length<4){close();return}if(!token)token=uuid();var my=++seq,sc=scope(inp),cc=country(sc);
+      fetch(API+'places:autocomplete',{method:'POST',headers:{'Content-Type':'application/json','X-Goog-Api-Key':KEY},
+        body:JSON.stringify({input:q,sessionToken:token,includedRegionCodes:[cc.toLowerCase()],includedPrimaryTypes:['street_address','premise','subpremise','route']})})
+      .then(function(r){return r.json()}).then(function(j){if(my!==seq||document.activeElement!==inp)return;
+        items=(j.suggestions||[]).map(function(s){return s.placePrediction}).filter(Boolean).slice(0,5);active=-1;paint()}).catch(function(){close()})}
+    function pick(i){var p=items[i];if(!p)return;var sc=scope(inp),tk=token;token=null;close();
+      fetch(API+'places/'+encodeURIComponent(p.placeId)+'?sessionToken='+encodeURIComponent(tk||''),{headers:{'X-Goog-Api-Key':KEY,'X-Goog-FieldMask':'addressComponents'}})
+      .then(function(r){return r.json()}).then(function(d){var c={};(d.addressComponents||[]).forEach(function(a){(a.types||[]).forEach(function(t){if(!c[t])c[t]=a})});
+        var g=function(t,s){return c[t]?(s?c[t].shortText:c[t].longText)||'':''};
+        var street=[g('street_number'),g('route',1)].filter(Boolean).join(' ');if(g('subpremise'))street+=' #'+g('subpremise');
+        var city=g('locality')||g('postal_town')||g('sublocality_level_1')||g('neighborhood')||g('administrative_area_level_3');
+        setVal(inp,street||((p.structuredFormat||{}).mainText||{}).text||inp.value);
+        setVal(sc.querySelector('input[name="city"], #ec-city-list'),city);
+        setVal(sc.querySelector('input[name="postal-code"], #ec-postal-code'),g('postal_code'));
+        var st=sc.querySelector('select[name="province"], #ec-state'),code=g('administrative_area_level_1',1);
+        if(st&&code&&[].some.call(st.options,function(o){return o.value===code}))setVal(st,code);
+        inp.focus()}).catch(function(){})}
+    inp.addEventListener('input',function(e){if(!e.isTrusted)return;clearTimeout(timer);timer=setTimeout(lookup,230)});
+    inp.addEventListener('keydown',function(e){if(list.hidden)return;
+      if(e.key==='ArrowDown'){e.preventDefault();active=(active+1)%items.length;paint()}
+      else if(e.key==='ArrowUp'){e.preventDefault();active=(active-1+items.length)%items.length;paint()}
+      else if(e.key==='Enter'&&active>-1){e.preventDefault();pick(active)}
+      else if(e.key==='Escape'){close()}});
+    inp.addEventListener('blur',function(){setTimeout(close,150)});
+    list.addEventListener('mousedown',function(e){var li=e.target.closest('li[data-i]');if(!li)return;e.preventDefault();pick(+li.dataset.i)});
+  }
+  function go(){if(!/\/products\/checkout/.test(location.pathname))return;css();
+    Array.prototype.forEach.call(document.querySelectorAll('.ec-store input[name="address-line1"]'),bind)}
+  setInterval(go,600);
+})();
