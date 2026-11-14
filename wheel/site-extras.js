@@ -37,7 +37,7 @@
   var SHOP=[
     ['Flip flop favorites','/shop-pairs'],['Build your own pair','/#wheel'],
     ['T-Shirts','/products/t-shirts'],['Stickers','/products/stickers'],['Air Fresheners','/products/air-fresheners'],
-    ['Tote Bags','/products/hasta-tote-bags'],['Shop all','/shop-pairs']
+    ['Tote Bags','/products/hasta-tote-bags'],['Gift Cards','/products/hasta-gift-card'],['Shop all','/shop-pairs']
   ];
   function menuHtml(cls){return SHOP.map(function(s){return '<a class="'+cls+'" href="'+s[1]+'">'+s[0]+'</a>'}).join('')}
   var dd,ddHost,ddT;
@@ -124,6 +124,8 @@
   // Pair prices (Zach, 2026-11-01). The cart charges whatever Retail says; these are only for display.
   // Retail: Sole - Adult $40, Sole - Kids $30, both strap bins $0 (Zach 2026-11-14). Change both together.
   var PRICE={Adult:40,Kids:30};
+  // Pre-sale (Zach 2026-11-14). Remove this line's text (and the wheel's .hf-presale) once pairs ship normally.
+  var PRESALE='<p class="hf-presale"><b>Pre-sale</b> Flip flops ship around the first week of December.</p>';
   // Adult sizes are men's; women's = men's - 1 per Zach ("Mens 10/Womens 9"). Keep in step with HF.womens in the wheel.
   var WOMENS={5:4,6:5,7:6,8:7,9:8,10:9,11:10,12:11};
   function sizeLabel(size){var m=/^Adult (\d+)$/.exec(size||'');return m&&WOMENS[m[1]]!=null?size+' (M'+m[1]+' / W'+WOMENS[m[1]]+')':size}
@@ -226,6 +228,8 @@
   '.hfq__hint{text-transform:none;letter-spacing:0;font-weight:600;margin-left:4px}'+
   '.hfq__s:hover{border-color:#13C2BB}.hfq__s.is-on{background:#F607B0;border-color:#F607B0;color:#0E0E11}'+
   '.hfq__msg{min-height:1.3em;margin:12px 0 0;font-size:.9rem;color:#B00060;font-weight:700}'+
+  '.hf-presale{margin:10px 0;padding:9px 12px;border-radius:10px;background:#FDE7F6;border-left:4px solid #F607B0;color:#0E0E11;font-size:.88rem;line-height:1.4}.hf-presale b{color:#C4008A;margin-right:6px;text-transform:uppercase;letter-spacing:.04em;font-size:.8rem}'+
+  'html:not(.hf-has-pairs) .hfb__foot .hf-presale,html:not(.hf-has-pairs) .hf-presale--page{display:none}.hf-presale--page{margin:0 0 18px;font-size:.95rem}'+
   '.hfq__add{margin-top:10px}.hfq__add[disabled]{opacity:.5;cursor:not-allowed}'+
   '.hfq__wheel{display:block;text-align:center;margin-top:12px;font-weight:700;color:#0B8F89;text-decoration:none}.hfq__wheel:hover{text-decoration:underline}'+
   '@media (prefers-reduced-motion:reduce){.hfb,.hfq,.hfb-scrim{transition:none}}';
@@ -239,7 +243,7 @@
     drawer=document.createElement('aside');drawer.className='hfb';drawer.setAttribute('role','dialog');drawer.setAttribute('aria-modal','true');drawer.setAttribute('aria-label','Your bag');drawer.tabIndex=-1;
     drawer.innerHTML='<div class="hfb__head"><h2 class="hfb__title">Your Bag</h2><button type="button" class="hfb__x" aria-label="Close bag">&times;</button></div>'+
       '<p class="hfb__note" hidden></p><div class="hfb__list"></div>'+
-      '<div class="hfb__foot"><div class="hfb__sub"><span>Subtotal</span><span class="hfb__subv">$0.00</span></div><p class="hfb__fine">Shipping and tax are calculated at checkout.</p>'+
+      '<div class="hfb__foot">'+PRESALE+'<div class="hfb__sub"><span>Subtotal</span><span class="hfb__subv">$0.00</span></div><p class="hfb__fine">Shipping and tax are calculated at checkout.</p>'+
       '<button type="button" class="hfb__btn hfb__btn--go" data-act="checkout">Checkout</button><button type="button" class="hfb__btn hfb__btn--ghost" data-act="keep">Keep shopping</button></div>';
     drawer.querySelector('.hfb__x').addEventListener('click',close);
     drawer.querySelector('[data-act=keep]').addEventListener('click',close);
@@ -312,11 +316,12 @@
     Object.keys(strapQ).forEach(function(b){if(strapQ[b]>0){var p=b.split('|');rows.push('<div class="hfb__item"><div class="hfb__img"></div><div class="hfb__meta"><div class="hfb__name">Strap only</div><div class="hfb__opts">'+esc(p[0])+' &middot; '+esc(p[1])+'</div></div><div class="hfb__price">'+money((strapP[b]||0)*strapQ[b])+'</div></div>')}});
     other.forEach(function(it){count+=it.quantity;var idx=items.indexOf(it),o=it.options||{},opts=Object.keys(o).map(function(k){return esc(k==='Sticker Number'?'Design':k)+': '+esc(o[k])}).join(' &middot; '),stk=window.HF_STICKER_PHOTO&&window.HF_STICKER_PHOTO(it);
       rows.push('<div class="hfb__item"><div class="hfb__img">'+(function(){var m=it.product.mediaItem||{},u=stk||m.image160pxUrl||m.image400pxUrl||it.product.imageUrl;return u?'<img alt="" src="'+esc(u)+'">':''})()+'</div><div class="hfb__meta"><div class="hfb__name">'+esc(it.product.name)+'</div><div class="hfb__opts">'+opts+'</div>'+step(it.quantity,'l-','l+','data-i="'+idx+'"',0)+'</div><div class="hfb__price">'+money((it.product.price||0)*it.quantity)+'<button type="button" class="hfb__rm" data-act="lrm" data-i="'+idx+'">Remove</button></div></div>')});
-    return {html:rows.length?rows.join(''):'<p class="hfb__empty">Your bag is empty.</p>',sub:items.reduce(function(a,it){return a+(it.product.price||0)*it.quantity},0),count:count,empty:!items.length};
+    var pairCount=pairs.reduce(function(a,p){return a+p.qty},0);
+    return {pairs:pairCount,html:rows.length?rows.join(''):'<p class="hfb__empty">Your bag is empty.</p>',sub:items.reduce(function(a,it){return a+(it.product.price||0)*it.quantity},0),count:count,empty:!items.length};
   }
   var lastCount=null;
   function render(cart){
-    var r=rowsFor(cart);lastCount=r.count;badge();
+    var r=rowsFor(cart);lastCount=r.count;badge();document.documentElement.classList.toggle('hf-has-pairs',r.pairs>0);
     if(drawer){drawer.querySelector('.hfb__list').innerHTML=r.html;drawer.querySelector('.hfb__subv').textContent=money(r.sub);drawer.querySelector('[data-act=checkout]').disabled=r.empty}
     var pl=document.getElementById('hf-cartlist');if(pl)pl.querySelector('.hfc__list').innerHTML=r.html;
   }
@@ -324,6 +329,9 @@
   function badge(){if(lastCount===null)return;Array.prototype.forEach.call(document.querySelectorAll('.ins-header__icon--cart'),function(a){if(a.getAttribute('data-hf-count')!==String(lastCount))a.setAttribute('data-hf-count',lastCount)})}
   // Bag page: Ecwid lists every sole and strap separately (and collapses 4+ lines into a thumbnail strip).
   // Show the same pair list as the drawer instead; Ecwid's totals, gift card and checkout stay.
+  // Pre-sale notice on the bag/checkout pages whenever the bag holds a pair (Zach 2026-11-14).
+  function presalePage(){if(!/\/products\/(cart|checkout)/.test(location.pathname))return;var c=document.querySelector('.ec-store .ec-cart');if(!c||c.querySelector(':scope>.hf-presale'))return;
+    c.insertAdjacentHTML('afterbegin',PRESALE.replace('hf-presale','hf-presale hf-presale--page'))}
   function cartPage(){
     if(!onCartPage()){document.documentElement.classList.remove('hf-cartlist-on');return}
     var native=document.querySelector('.ec-store__cart-page .ec-cart__products');if(!native)return;
@@ -375,7 +383,7 @@
   }
   CSS+='.ec-cart-step--delivery.ec-cart-step--empty{display:none!important}'+
     '.ec-cart-step--delivery.ec-cart-step--done .ec-cart-step__change{display:none!important}';
-  setInterval(function(){css();badge();cartPage();pickupSkip();summary();counts()},500);
+  setInterval(function(){css();badge();cartPage();presalePage();pickupSkip();summary();counts()},500);
   function note(msg){if(drawer){var n=drawer.querySelector('.hfb__note');if(msg){n.textContent=msg;n.hidden=false}else n.hidden=true}var pl=document.getElementById('hf-cartlist');if(pl&&msg){var m=pl.querySelector('.hfc__msg');if(!m){m=document.createElement('p');m.className='hfb__note hfc__msg';pl.insertBefore(m,pl.firstChild)}m.textContent=msg}}
   function open(note){
     if(onCartPage())return;css();build();
@@ -413,7 +421,7 @@
       '<p class="hfq__lbl">Kids</p><div class="hfq__sizes">'+sz('Kids',KIDS)+'</div>'+
       '<p class="hfq__lbl">Quantity</p><div class="hfb__step hfq__qty" role="group" aria-label="Quantity"><button type="button" data-q="-1" aria-label="One fewer">&minus;</button><span aria-live="polite">1</span><button type="button" data-q="1" aria-label="One more">+</button></div>'+
       '<p class="hfq__msg" aria-live="polite"></p>'+
-      '<button type="button" class="hfb__btn hfb__btn--go hfq__add" disabled>Pick a size</button>'+
+      PRESALE+'<button type="button" class="hfb__btn hfb__btn--go hfq__add" disabled>Pick a size</button>'+
       '<a class="hfq__wheel" href="/">Customize on the wheel &rarr;</a></div>';
     qp.querySelector('.hfq__x').addEventListener('click',qClose);
     Array.prototype.forEach.call(qp.querySelectorAll('.hfq__s'),function(b){b.addEventListener('click',function(){
@@ -480,7 +488,7 @@
    =================================================================================================== */
 (function(){
   var FOOT={'Search Products':'/products/search','Account':'/products/account','Track Orders':'/products/account/orders',
-    'Favorites':'/products/account/favorites','Shopping Bag':'/products/cart','Gift Cards':'/products/gift-card','View All':'/shop-pairs'};
+    'Favorites':'/products/account/favorites','Shopping Bag':'/products/cart','Gift Cards':'/products/hasta-gift-card','View All':'/shop-pairs'};
   var FANS='874633242';
   var MARQ='Spin the wheel  ✦  15 sole colors  ✦  22 strap colors  ✦  330 combos  ✦  Wear Hasta Run Fasta™  ✦  Made in the Florida sunshine ☀  ✦  ';
   var CSS='html:not(.hf-home) [id^="tile-announcement-bar"]{display:none!important}'+
@@ -493,6 +501,8 @@
   function css(){if(document.getElementById('hf-fix-css'))return;var s=document.createElement('style');s.id='hf-fix-css';s.textContent=CSS;document.head.appendChild(s)}
   function home(){document.documentElement.classList.toggle('hf-home',location.pathname.replace(/\/+$/,'')==='')}
   function footer(){
+    // Old emailed e-gift card page is off (in-store only since 2026-11-14): every link to it goes to the mailed card product.
+    Array.prototype.forEach.call(document.querySelectorAll('a[href$="/products/gift-card"]'),function(a){a.setAttribute('href','/products/hasta-gift-card')});
     Array.prototype.forEach.call(document.querySelectorAll('[id^="tile-footer"] a'),function(a){
       var k=a.textContent.trim(),h=FOOT[k];if(!h)return;
       if(a.getAttribute('href')!==h)a.setAttribute('href',h);
@@ -542,7 +552,7 @@
 
 /* ===================================================================================================
    8. Zach + Amy, 2026-11-14.
-   - Nav "The Wheel" -> "Flip Flops".
+   - Nav "Flip Flops" + ticker text now live in the editor (2026-11-14 publish).
    - Patent pending wheel wording (About + FAQ); quality copy (high quality, long lasting: won't curl or stretch,
      superior fit & finish) on the home band, About, FAQ. The wheel itself carries the instructions box.
    - "Wear Hasta Run Fasta™ (Run in flip flops at your own risk)": logo block on home + About, line in the footer.
@@ -578,8 +588,7 @@
   function runBlock(){var d=document.createElement('section');d.className='hf-run';d.setAttribute('aria-label',TAG);
     d.appendChild(img(LOGO,'hf-run__logo','Wear Hasta Run Fasta (Run in flip flops at your own risk)'));
     d.insertAdjacentHTML('beforeend','<p class="hf-run__tag">'+TAG+'</p><p class="hf-run__risk">'+RISK+'</p>');palms(d);return d}
-  function nav(){Array.prototype.forEach.call(document.querySelectorAll('[id^="tile-header"] a, .ins-header a, [class*="menu"] a'),function(a){
-    if(a.children.length)return;if(a.textContent.trim()==='The Wheel')a.textContent='Flip Flops'})}
+  // Nav label "Flip Flops" is set in the editor (Header & Menu), not here: a runtime swap flashed the old label and reflowed the nav on every page load.
   function band(){var b=document.getElementById('hf-band');if(!b)return;palms(b);
     var cards=b.querySelector('.hf-cards');if(cards&&!b.querySelector('.hf-quality'))cards.insertAdjacentHTML('afterend','<ul class="hf-quality"><li>High quality</li><li>Long lasting: won’t curl or stretch</li><li>Superior fit &amp; finish</li></ul>');
     var tile=b.closest('[id^="tile-"]');if(tile&&!document.getElementById('hf-run-home')){var r=runBlock();r.id='hf-run-home';tile.parentNode.insertBefore(r,tile.nextSibling)}}
@@ -608,7 +617,7 @@
   function bandFit(){var b=document.getElementById('hf-band');if(!b)return;Array.prototype.forEach.call(b.querySelectorAll('.hf-card p'),function(p){
     if(/^A cushioned footbed/.test(p.textContent.trim())&&!p.dataset.hfz){p.dataset.hfz='1';p.textContent='High quality and long lasting: won’t curl, won’t stretch. A cushioned footbed and a soft, no-rub strap, in adult and kids sizes. Fits true to size.'}})}
   function go(){css();var r=document.getElementById('ec-instantsite-website');if(r&&!r.__vue_app__)return;
-    nav();band();bandFit();hero();foot();about();faq()}
+    band();bandFit();hero();foot();about();faq()}
   go();document.readyState==='loading'&&document.addEventListener('DOMContentLoaded',go);setInterval(go,800);
 })();
 
