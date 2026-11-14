@@ -74,3 +74,5 @@ html body #hf-ideas a.hf-ideas__btn:hover,html body #hf-ideas a.hf-ideas__btn:ho
 /* With the Run Fasta section gone, the band's bottom wave sits right on the footer's top wave:
    on the Flip Flops page the footer drops its own wave. */
 html:has(#tile-custom-code-Li6grF) .ins-tile--footer .section__container{background:#0E0E11!important;padding-top:8px!important}
+/* Zach 2026-11-14: no text under the Run Fasta logo (the logo already says it). */
+.hf-bandrun p,.hf-run__tag,.hf-run__risk{display:none!important}
