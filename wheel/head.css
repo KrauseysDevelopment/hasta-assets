@@ -11,27 +11,27 @@
    - Selectors start "html body" to beat the store reset
      ".ec-size .ec-store *" (same specificity, loads after this file). */
 
-/* Category pages: wrapper holds h1 + breadcrumbs. Row 1 palm | title | palm,
+/* Category pages: wrapper holds h1 + breadcrumbs. Centered: row 1 palm | title | palm,
    row 2 breadcrumbs. */
 html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title{
-  display:grid;grid-template-columns:auto auto 1fr;align-items:center;column-gap:.5rem;
+  display:grid;grid-template-columns:1fr auto auto auto 1fr;align-items:center;column-gap:.5rem;text-align:center;
 }
-html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title>.page-title__name{grid-column:2;grid-row:1;margin:0}
-html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title>:not(.page-title__name){grid-column:1/-1;grid-row:2}
+html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title>.page-title__name{grid-column:3;grid-row:1;margin:0}
+html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title>:not(.page-title__name){grid-column:1/-1;grid-row:2;justify-self:center}
 html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title::before,
 html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title::after{
   content:"";grid-row:1;width:2.6rem;height:3.25rem;
   background:url(../theme/palm-pink-sm.png) center/contain no-repeat;
 }
-html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title::before{grid-column:1}
+html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title::before{grid-column:2}
 html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title::after{
-  grid-column:3;justify-self:start;
+  grid-column:4;
   background-image:url(../theme/palm-teal-sm.png);transform:scaleX(-1);
 }
 
 /* Product pages: wrapper holds only the h1. */
 html body .ec-store__product-page .product-details__product-title-wrapper>.extra-actions-wrapper__content{
-  display:flex;align-items:center;gap:.5rem;
+  display:flex;align-items:center;justify-content:center;gap:.5rem;text-align:center;
 }
 html body .ec-store__product-page .product-details__product-title-wrapper>.extra-actions-wrapper__content::before,
 html body .ec-store__product-page .product-details__product-title-wrapper>.extra-actions-wrapper__content::after{
