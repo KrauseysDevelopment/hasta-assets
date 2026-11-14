@@ -656,13 +656,27 @@
     '#hf-stk .hfs-body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}'+
     '#hf-stk .hfs-name{font-weight:800;font-size:.92rem;line-height:1.25;color:#0E0E11}#hf-stk .hfs-price{font-size:.88rem;color:#5a5664}'+
     '#hf-stk .hfs-add{margin-top:auto;border:0;border-radius:999px;background:#0E0E11;color:#fff;font-weight:800;font-size:.85rem;padding:9px 12px;cursor:pointer}'+
-    '#hf-stk .hfs-add:hover{background:#C4008A}#hf-stk .hfs-add[disabled]{opacity:.6;cursor:wait}';
+    '#hf-stk .hfs-add:hover{background:#C4008A}#hf-stk .hfs-add[disabled]{opacity:.6;cursor:wait}'+
+    '#hf-stk .hfs-card img{cursor:zoom-in}'+
+    '#hf-stk-lb{position:fixed;inset:0;z-index:2147483000;background:rgba(14,14,17,.82);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}'+
+    '#hf-stk-lb .hfl-box{position:relative;background:#fff;border-radius:18px;padding:18px;max-width:min(92vw,640px);max-height:92vh;overflow:auto;box-sizing:border-box;text-align:center;font-family:inherit}'+
+    '#hf-stk-lb img{display:block;width:min(80vw,600px);max-height:68vh;object-fit:contain;margin:0 auto 12px;border-radius:12px;background:#f4f4f4}'+
+    '#hf-stk-lb .hfl-name{font-weight:900;font-size:1.15rem;color:#0E0E11;margin:0 0 2px}#hf-stk-lb .hfl-price{color:#5a5664;margin:0 0 12px}'+
+    '#hf-stk-lb .hfl-add{border:0;border-radius:999px;background:#0E0E11;color:#fff;font-weight:800;font-size:.95rem;padding:11px 26px;cursor:pointer}#hf-stk-lb .hfl-add:hover{background:#C4008A}'+
+    '#hf-stk-lb .hfl-x{position:absolute;top:8px;right:10px;border:0;background:#fff;border-radius:50%;width:36px;height:36px;font-size:22px;line-height:36px;cursor:pointer;color:#0E0E11;padding:0}';
   function css(){if(document.getElementById('hf-stk-css'))return;var s=document.createElement('style');s.id='hf-stk-css';s.textContent=CSS;document.head.appendChild(s)}
   function add(name,btn){if(!window.Ecwid||!Ecwid.Cart)return;btn.disabled=true;var t=btn.textContent;btn.textContent='Adding…';
     var tries=['Design','Sticker Number'];
     (function go(i){var o={};o[tries[i]]=name;Ecwid.Cart.addProduct({id:PID,quantity:1,options:o,callback:function(ok){
       if(!ok&&i+1<tries.length)return go(i+1);btn.disabled=false;btn.textContent=ok?'Added ✓':'Try again';setTimeout(function(){btn.textContent=t},1600);
-      if(ok&&window.HastaBag)HastaBag.open()}})})(0)}
+      if(ok){closeZoom();if(window.HastaBag)HastaBag.open()}}})})(0)}
+  // Click a sticker photo: bigger view with name, price and Add to Bag. Closes on X, backdrop or Esc.
+  function zoom(name){var r=BY[name];if(!r)return;closeZoom();var o=document.createElement('div');o.id='hf-stk-lb';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-label',name+' sticker');
+    o.innerHTML='<div class="hfl-box"><button type="button" class="hfl-x" aria-label="Close">&times;</button><img alt="'+esc(name)+' sticker" src="'+BASE+r[1]+'.jpg"><p class="hfl-name">'+esc(name)+'</p><p class="hfl-price">$'+r[2].toFixed(2)+'</p><button type="button" class="hfl-add">Add to Bag</button></div>';
+    o.addEventListener('click',function(e){if(e.target===o||e.target.closest('.hfl-x'))return closeZoom();var b=e.target.closest('.hfl-add');if(b)add(name,b)});
+    document.body.appendChild(o);o.querySelector('.hfl-x').focus()}
+  function closeZoom(){var o=document.getElementById('hf-stk-lb');if(o)o.remove()}
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeZoom()});
   function grid(){var onCat=/^\/products\/stickers\/?$/.test(location.pathname);document.documentElement.classList.toggle('hf-stk',onCat);
     var old=document.getElementById('hf-stk');if(!onCat){if(old)old.remove();return}
     if(old)return;var host=document.querySelector('.ec-store .grid__products, .ec-store .grid-product');if(!host)return;
@@ -670,7 +684,7 @@
     var d=document.createElement('div');d.id='hf-stk';
     d.innerHTML='<h2>Pick your stickers</h2><p>'+STK.length+' designs. Made by Sticker Mule for coolers, boards, bumpers and water bottles.</p><div class="hfs-grid">'+
       STK.map(function(r){return '<div class="hfs-card"><img loading="lazy" alt="'+esc(r[0])+' sticker" src="'+BASE+r[1]+'.jpg"><div class="hfs-body"><div class="hfs-name">'+esc(r[0])+'</div><div class="hfs-price">$'+r[2].toFixed(2)+'</div><button type="button" class="hfs-add" data-name="'+esc(r[0])+'">Add to Bag</button></div></div>'}).join('')+'</div>';
-    d.addEventListener('click',function(e){var b=e.target.closest('.hfs-add');if(b)add(b.getAttribute('data-name'),b)});
+    d.addEventListener('click',function(e){var b=e.target.closest('.hfs-add');if(b)return add(b.getAttribute('data-name'),b);var im=e.target.closest('.hfs-card img');if(im)zoom(im.closest('.hfs-card').querySelector('.hfs-add').getAttribute('data-name'))});
     host.parentNode.insertBefore(d,host)}
   function label(){if(!/\/products\/hasta-stickers/.test(location.pathname))return;
     Array.prototype.forEach.call(document.querySelectorAll('.product-details-module__title'),function(t){if(t.textContent.trim()==='Sticker Number')t.textContent='Design'})}
