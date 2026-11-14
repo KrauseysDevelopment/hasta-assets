@@ -633,7 +633,9 @@
   window.HF_STICKER_PHOTO=function(it){if(!it||!it.product||it.product.id!==PID)return null;var o=it.options||{},v=o.Design||o['Sticker Number'];return BY[v]?BASE+BY[v][1]+'.jpg':null};
   var esc=function(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
   var CSS='html.hf-stk .grid-product--id-'+PID+'{display:none!important}'+
-    '#hf-stk{max-width:1100px;margin:0 auto 34px;padding:0 16px}#hf-stk h2{font-size:1.5rem;font-weight:900;margin:0 0 4px}#hf-stk>p{margin:0 0 18px;color:#5a5664}'+
+    'html.hf-stk .grid__wrap-inner{flex-wrap:wrap}#hf-stk{flex:0 0 100%;max-width:100%;margin:0 0 34px;padding:0;box-sizing:border-box}'+
+    'html.hf-stk .grid__products:not(:has(.grid-product:not(.grid-product--id-'+PID+'))){display:none}'+
+    '#hf-stk h2{font-size:1.5rem;font-weight:900;margin:0 0 4px}#hf-stk>p{margin:0 0 18px;color:#5a5664}'+
     '.hfs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px}'+
     '.hfs-card{background:#fff;border:1px solid #eee;border-radius:14px;overflow:hidden;display:flex;flex-direction:column}'+
     '.hfs-card img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;background:#f4f4f4}'+
