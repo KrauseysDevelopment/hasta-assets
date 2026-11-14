@@ -5,28 +5,56 @@
 
    Product + category headings: gradient text between two palms
    (Nick 2026-11-14). Store root (category 0) has its own hero; cart and
-   checkout titles are left alone. */
-.ec-store__category-page:not(.ec-store__category-page--0) .page-title__name,
-.ec-store__product-page .product-details__product-title{
-  display:inline-flex;align-items:center;gap:.32em;
+   checkout titles are left alone.
+   - Palms sit on the heading's WRAPPER, not the h1: background-clip:text
+     on the h1 would clip its own pseudo-element backgrounds away.
+   - Selectors start "html body" to beat the store reset
+     ".ec-size .ec-store *" (same specificity, loads after this file). */
+
+/* Category pages: wrapper holds h1 + breadcrumbs. Row 1 palm | title | palm,
+   row 2 breadcrumbs. */
+html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title{
+  display:grid;grid-template-columns:auto auto 1fr;align-items:center;column-gap:.5rem;
 }
-.ec-store__category-page:not(.ec-store__category-page--0) .page-title__name::before,
-.ec-store__category-page:not(.ec-store__category-page--0) .page-title__name::after,
-.ec-store__product-page .product-details__product-title::before,
-.ec-store__product-page .product-details__product-title::after{
-  content:"";flex:0 0 auto;width:.92em;height:1.15em;
+html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title>.page-title__name{grid-column:2;grid-row:1;margin:0}
+html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title>:not(.page-title__name){grid-column:1/-1;grid-row:2}
+html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title::before,
+html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title::after{
+  content:"";grid-row:1;width:2.6rem;height:3.25rem;
   background:url(../theme/palm-pink-sm.png) center/contain no-repeat;
 }
-.ec-store__category-page:not(.ec-store__category-page--0) .page-title__name::after,
-.ec-store__product-page .product-details__product-title::after{
-  background-image:url(../theme/palm-teal-sm.png);
-  transform:scaleX(-1);
+html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title::before{grid-column:1}
+html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title::after{
+  grid-column:3;justify-self:start;
+  background-image:url(../theme/palm-teal-sm.png);transform:scaleX(-1);
 }
+
+/* Product pages: wrapper holds only the h1. */
+html body .ec-store__product-page .product-details__product-title-wrapper>.extra-actions-wrapper__content{
+  display:flex;align-items:center;gap:.5rem;
+}
+html body .ec-store__product-page .product-details__product-title-wrapper>.extra-actions-wrapper__content::before,
+html body .ec-store__product-page .product-details__product-title-wrapper>.extra-actions-wrapper__content::after{
+  content:"";flex:0 0 auto;width:1.9rem;height:2.4rem;
+  background:url(../theme/palm-pink-sm.png) center/contain no-repeat;
+}
+html body .ec-store__product-page .product-details__product-title-wrapper>.extra-actions-wrapper__content::after{
+  background-image:url(../theme/palm-teal-sm.png);transform:scaleX(-1);
+}
+
+/* Gradient text on both headings (only where the browser supports it;
+   otherwise the theme's black stays). */
 @supports ((-webkit-background-clip:text) or (background-clip:text)){
-  .ec-store__category-page:not(.ec-store__category-page--0) .page-title__name,
-  .ec-store__product-page .product-details__product-title{
+  html body .ec-store__category-page:not(.ec-store__category-page--0) .page-title__name,
+  html body .ec-store__product-page .product-details__product-title{
     background:linear-gradient(90deg,#F607B0 0%,#A23BE0 52%,#0FB3AC 100%);
     -webkit-background-clip:text;background-clip:text;
-    color:transparent!important;-webkit-text-fill-color:transparent;
+    color:transparent;-webkit-text-fill-color:transparent;
   }
+}
+@media(max-width:640px){
+  html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title::before,
+  html body .ec-store__category-page:not(.ec-store__category-page--0) .ec-page-title::after{width:1.9rem;height:2.4rem}
+  html body .ec-store__product-page .product-details__product-title-wrapper>.extra-actions-wrapper__content::before,
+  html body .ec-store__product-page .product-details__product-title-wrapper>.extra-actions-wrapper__content::after{width:1.5rem;height:1.9rem}
 }
