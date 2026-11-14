@@ -5,9 +5,10 @@
 (function(){
   var MERCH=[
     {n:'Hasta Air Freshener',m:'$6.99',h:'/products/hasta-air-freshener',i:'https://d2j6dbq0eux0bg.cloudfront.net/images/142623305/products/871125111/6373581719.jpg'},
-    {n:'Hasta Stickers',m:'$3.00',h:'/products/hasta-stickers',i:'https://d2j6dbq0eux0bg.cloudfront.net/images/142623305/products/871054959/6373584136.jpg'},
+    {n:'Hasta Stickers',m:'18 designs &middot; from $3',h:'/products/stickers',i:'https://d2j6dbq0eux0bg.cloudfront.net/images/142623305/products/871054959/6373584136.jpg'},
     {n:'Hasta Tote Bag',m:'$19.99',h:'/products/hasta-tote-bags-874635836',i:'https://d2j6dbq0eux0bg.cloudfront.net/images/142623305/products/874635836/6368191141.jpg'},
-    {n:'Hasta T-Shirts',m:'From $24.99 &middot; 3 designs',h:'/products/t-shirts',i:'https://d2j6dbq0eux0bg.cloudfront.net/images/142623305/products/874635877/6368223365.jpg'}
+    {n:'Hasta T-Shirts',m:'From $24.99',h:'/products/t-shirts',i:'https://d2j6dbq0eux0bg.cloudfront.net/images/142623305/products/874635877/6368223365.jpg'},
+    {n:'Hasta Gift Card',m:'Any amount &middot; mailed',h:'/products/hasta-gift-card',i:'https://d2j6dbq0eux0bg.cloudfront.net/images/142623305/products/877908455/6409394436.png'}
   ];
   // Hidden categories: the two inventory bins, plus an empty duplicate "Tote Bag" (the totes live in "Hasta Tote Bags").
   var BIN_CATS=['208164304','208164334','208164089','208661035'], BIN_SLUGS=['adult-sole','kid-strap','tote-bag','hasta-fans'];  // 208661035 = Hasta Fans, hidden while priced $0.00 (remove when Zach prices it)
@@ -124,6 +125,7 @@
   // Pair prices (Zach, 2026-11-01). The cart charges whatever Retail says; these are only for display.
   // Retail: Sole - Adult $40, Sole - Kids $30, both strap bins $0 (Zach 2026-11-14). Change both together.
   var PRICE={Adult:40,Kids:30};
+  var GIFT_ID=877908455; // Hasta Gift Card: one $1.00 variant "Any amount"; the amount is the quantity (see section 10)
   // Pre-sale (Zach 2026-11-14). Remove this line's text (and the wheel's .hf-presale) once pairs ship normally.
   var PRESALE='<p class="hf-presale"><b>Pre-sale</b> Flip flops ship around the first week of December.</p>';
   // Adult sizes are men's; women's = men's - 1 per Zach ("Mens 10/Womens 9"). Keep in step with HF.womens in the wheel.
@@ -315,8 +317,8 @@
       rows.push('<div class="hfb__item"><div class="hfb__img"><img alt="" src="'+esc(photo(p.sole,p.strap))+'"></div><div class="hfb__meta"><div class="hfb__name">Custom pair</div><div class="hfb__opts">'+esc(p.sole)+' sole &middot; '+esc(p.strap)+' strap<br>'+esc(sizeLabel(p.size))+'</div>'+step(p.qty,'p-','p+',at,10)+'</div><div class="hfb__price">'+money(p.unit*p.qty)+'<button type="button" class="hfb__rm" data-act="prm" '+at+'>Remove</button></div></div>')});
     Object.keys(soleQ).forEach(function(a){if(soleQ[a]>0){count+=soleQ[a];var p=a.split('|');rows.push('<div class="hfb__item"><div class="hfb__img"></div><div class="hfb__meta"><div class="hfb__name">Sole only</div><div class="hfb__opts">'+esc(p[0])+' &middot; '+esc(p[1])+(soleQ[a]>1?' &middot; Qty '+soleQ[a]:'')+'</div></div><div class="hfb__price">'+money((soleP[a]||0)*soleQ[a])+'</div></div>')}});
     Object.keys(strapQ).forEach(function(b){if(strapQ[b]>0){var p=b.split('|');rows.push('<div class="hfb__item"><div class="hfb__img"></div><div class="hfb__meta"><div class="hfb__name">Strap only</div><div class="hfb__opts">'+esc(p[0])+' &middot; '+esc(p[1])+'</div></div><div class="hfb__price">'+money((strapP[b]||0)*strapQ[b])+'</div></div>')}});
-    other.forEach(function(it){count+=it.quantity;var idx=items.indexOf(it),o=it.options||{},opts=Object.keys(o).map(function(k){return esc(k==='Sticker Number'?'Design':k)+': '+esc(o[k])}).join(' &middot; '),stk=window.HF_STICKER_PHOTO&&window.HF_STICKER_PHOTO(it);
-      rows.push('<div class="hfb__item"><div class="hfb__img">'+(function(){var m=it.product.mediaItem||{},u=stk||m.image160pxUrl||m.image400pxUrl||it.product.imageUrl;return u?'<img alt="" src="'+esc(u)+'">':''})()+'</div><div class="hfb__meta"><div class="hfb__name">'+esc(it.product.name)+'</div><div class="hfb__opts">'+opts+'</div>'+step(it.quantity,'l-','l+','data-i="'+idx+'"',0)+'</div><div class="hfb__price">'+money((it.product.price||0)*it.quantity)+'<button type="button" class="hfb__rm" data-act="lrm" data-i="'+idx+'">Remove</button></div></div>')});
+    other.forEach(function(it){count+=(it.product.id===GIFT_ID?1:it.quantity);var gift=it.product.id===GIFT_ID;var idx=items.indexOf(it),o=it.options||{},opts=gift?'Mailed gift card &middot; '+money(it.quantity*(it.product.price||1)):Object.keys(o).map(function(k){return esc(k==='Sticker Number'?'Design':k)+': '+esc(o[k])}).join(' &middot; '),stk=window.HF_STICKER_PHOTO&&window.HF_STICKER_PHOTO(it);
+      rows.push('<div class="hfb__item"><div class="hfb__img">'+(function(){var m=it.product.mediaItem||{},u=stk||m.image160pxUrl||m.image400pxUrl||it.product.imageUrl;return u?'<img alt="" src="'+esc(u)+'">':''})()+'</div><div class="hfb__meta"><div class="hfb__name">'+esc(it.product.name)+'</div><div class="hfb__opts">'+opts+'</div>'+(gift?'':step(it.quantity,'l-','l+','data-i="'+idx+'"',0))+'</div><div class="hfb__price">'+money((it.product.price||0)*it.quantity)+'<button type="button" class="hfb__rm" data-act="lrm" data-i="'+idx+'">Remove</button></div></div>')});
     var pairCount=pairs.reduce(function(a,p){return a+p.qty},0);
     return {pairs:pairCount,html:rows.length?rows.join(''):'<p class="hfb__empty">Your bag is empty.</p>',sub:items.reduce(function(a,it){return a+(it.product.price||0)*it.quantity},0),count:count,empty:!items.length};
   }
@@ -385,8 +387,7 @@
     [].forEach.call(document.querySelectorAll('.footer__link--shopping-cart'),function(a){
       [].forEach.call(a.childNodes,function(t){if(t.nodeType===3&&/\(\d+\)/.test(t.nodeValue)){var w=t.nodeValue.replace(/\(\d+\)/,'('+n+')');if(w!==t.nodeValue)t.nodeValue=w}})});
   }
-  CSS+='.ec-cart-step--delivery.ec-cart-step--empty{display:none!important}'+
-    '.ec-cart-step--delivery.ec-cart-step--done .ec-cart-step__change{display:none!important}';
+  // (2026-11-14) Shipping is live now, so the delivery row and its "Change" link stay visible. pickupSkip() only fires when Main Outlet pickup is the ONLY option.
   setInterval(function(){css();badge();cartPage();presalePage();pickupSkip();summary();counts()},500);
   function note(msg){if(drawer){var n=drawer.querySelector('.hfb__note');if(msg){n.textContent=msg;n.hidden=false}else n.hidden=true}var pl=document.getElementById('hf-cartlist');if(pl&&msg){var m=pl.querySelector('.hfc__msg');if(!m){m=document.createElement('p');m.className='hfb__note hfc__msg';pl.insertBefore(m,pl.firstChild)}m.textContent=msg}}
   function open(note){
@@ -675,4 +676,56 @@
     Array.prototype.forEach.call(document.querySelectorAll('.product-details-module__title'),function(t){if(t.textContent.trim()==='Sticker Number')t.textContent='Design'})}
   function go(){css();var r=document.getElementById('ec-instantsite-website');if(r&&!r.__vue_app__)return;grid();label()}
   go();document.readyState==='loading'&&document.addEventListener('DOMContentLoaded',go);setInterval(go,700);
+})();
+
+
+/* ===================================================================================================
+   10. Gift cards (Zach + Amy 2026-11-14): physical cards only, mailed, any amount.
+   Retail product "Hasta Gift Card" (eCom 877908455) has ONE variant, Amount "Any amount", at $1.00, no tax,
+   no inventory. The product page swaps Ecwid's price/option/quantity block for an amount box ($1 to $1,000)
+   and adds that many $1 units, so a $50 card is quantity 50 = $50.00. The emailed e-gift card is off
+   (Retail > Gift cards > Sales channel: In-store only). Amy loads the value on a physical card before mailing.
+   Also: the store's own all-products page (/products) gets a flip flops banner, since the pairs aren't
+   regular products there.
+   =================================================================================================== */
+(function(){
+  var ID=877908455,MIN=1,MAX=1000,OPT={Amount:'Any amount'};
+  var CSS='.ec-store__product-page--'+ID+' .product-details__product-price-row,.ec-store__product-page--'+ID+' .details-product-option--Amount,.ec-store__product-page--'+ID+' .details-product-purchase{display:none!important}'+
+    '#hf-gc{margin:18px 0 8px}#hf-gc label{display:block;font-weight:800;margin:0 0 8px;color:#0E0E11}'+
+    '#hf-gc .hfg-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}'+
+    '#hf-gc .hfg-amt{display:flex;align-items:center;border:2px solid #0E0E11;border-radius:12px;padding:0 12px;height:48px;background:#fff}'+
+    '#hf-gc .hfg-amt span{font-weight:900;font-size:1.2rem;margin-right:4px}#hf-gc input{border:0;outline:0;width:110px;font-size:1.2rem;font-weight:800;background:transparent;color:#0E0E11}'+
+    '#hf-gc .hfg-chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 0}#hf-gc .hfg-chips button{border:1px solid #ddd;background:#fff;border-radius:999px;padding:6px 12px;font-weight:700;cursor:pointer}#hf-gc .hfg-chips button:hover{border-color:#F607B0;color:#C4008A}'+
+    '#hf-gc .hfg-help{margin:8px 0 0;font-size:.85rem;color:#5a5664}#hf-gc .hfg-err{color:#C4008A;font-weight:700}'+
+    '#hf-gc .hfg-add{margin-top:14px;width:100%;max-width:360px;height:52px;border:0;border-radius:999px;background:#0E0E11;color:#fff;font-weight:800;font-size:1rem;cursor:pointer}#hf-gc .hfg-add:hover{background:#C4008A}#hf-gc .hfg-add[disabled]{opacity:.5;cursor:not-allowed}'+
+    '#hf-ff{display:flex;align-items:center;gap:18px;margin:0 0 28px;padding:18px 20px;border-radius:16px;background:#0E0E11;color:#fff;flex-wrap:wrap}'+
+    '#hf-ff img{width:96px;height:96px;object-fit:contain;background:#fff;border-radius:12px}#hf-ff .hff-t{flex:1;min-width:200px}#hf-ff b{display:block;font-size:1.25rem;font-weight:900}#hf-ff small{display:block;opacity:.8;margin-top:4px;font-size:.92rem}'+
+    '#hf-ff a{display:inline-block;padding:11px 18px;border-radius:999px;font-weight:800;text-decoration:none;white-space:nowrap}#hf-ff .hff-a{background:#F607B0;color:#0E0E11!important}#hf-ff .hff-b{background:#13C2BB;color:#0E0E11!important}';
+  function css(){if(document.getElementById('hf-gc-css'))return;var s=document.createElement('style');s.id='hf-gc-css';s.textContent=CSS;document.head.appendChild(s)}
+  function val(i){var n=Math.round(parseFloat(String(i.value).replace(/[^0-9.]/g,'')));return isFinite(n)?n:0}
+  function panel(){var page=document.querySelector('.ec-store__product-page--'+ID);if(!page||page.querySelector('#hf-gc'))return;
+    var anchor=page.querySelector('.details-product-purchase')||page.querySelector('.product-details__general-info');if(!anchor)return;
+    var d=document.createElement('div');d.id='hf-gc';
+    d.innerHTML='<label for="hfg-in">Gift card amount</label><div class="hfg-row"><div class="hfg-amt"><span>$</span><input id="hfg-in" type="number" inputmode="numeric" min="'+MIN+'" max="'+MAX+'" step="1" value="50" aria-describedby="hfg-help"></div></div>'+
+      '<div class="hfg-chips">'+[25,50,75,100,150].map(function(n){return '<button type="button" data-v="'+n+'">$'+n+'</button>'}).join('')+'</div>'+
+      '<p class="hfg-help" id="hfg-help">Any whole-dollar amount from $'+MIN+' to $'+MAX.toLocaleString()+'. Mailed as a physical card; no e-gift cards yet.</p>'+
+      '<button type="button" class="hfg-add">Add $50 gift card to bag</button>';
+    anchor.parentNode.insertBefore(d,anchor);
+    var inp=d.querySelector('input'),btn=d.querySelector('.hfg-add'),help=d.querySelector('.hfg-help');
+    function upd(){var n=val(inp),ok=n>=MIN&&n<=MAX;btn.disabled=!ok;btn.textContent=ok?'Add $'+n.toLocaleString()+' gift card to bag':'Enter $'+MIN+' to $'+MAX.toLocaleString();help.classList.toggle('hfg-err',!ok&&inp.value!=='')}
+    inp.addEventListener('input',upd);
+    d.querySelector('.hfg-chips').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;inp.value=b.getAttribute('data-v');upd();inp.focus()});
+    btn.addEventListener('click',function(){var n=val(inp);if(!(n>=MIN&&n<=MAX)||!window.Ecwid||!Ecwid.Cart)return;btn.disabled=true;btn.textContent='Adding…';
+      Ecwid.Cart.addProduct({id:ID,quantity:n,options:OPT,callback:function(ok){btn.textContent=ok?'Added ✓':'Sorry, try again';setTimeout(upd,1500);if(ok&&window.HastaBag)HastaBag.open()}})});
+    upd()}
+  // Checkout summary: "Hasta Gift Card x 50 $50.00" reads fine; just say what it is.
+  function summary(){Array.prototype.forEach.call(document.querySelectorAll('.ec-cart-item'),function(i){var t=i.querySelector('.ec-cart-item__title');if(!t||!/^Hasta Gift Card$/.test(t.textContent.trim()))return;
+    var o=i.querySelector('.ec-cart-item__options');if(o&&!o.dataset.hfg){o.dataset.hfg='1';o.textContent='Mailed gift card (amount = quantity × $1)'}})}
+  function storeHome(){if(!/^\/products\/?$/.test(location.pathname)){var x=document.getElementById('hf-ff');if(x)x.remove();return}
+    if(document.getElementById('hf-ff'))return;var host=document.querySelector('.ec-store .grid__wrap, .ec-store .ec-store__content-wrapper, .ec-store');if(!host)return;
+    var d=document.createElement('div');d.id='hf-ff';
+    d.innerHTML='<img alt="Hot Pink sole with Teal strap" src="https://cdn.jsdelivr.net/gh/KrauseysDevelopment/hasta-assets@f1e48a4fd6661d55ea06467f7096fb5511c1f87c/combos/pink--teal.jpg"><div class="hff-t"><b>Flip flops</b><small>330 sole and strap combos, $40 adult / $30 kids. Pre-sale: ships around the first week of December.</small></div><a class="hff-a" href="/shop-pairs">Shop favorites</a><a class="hff-b" href="/#wheel">Build your own</a>';
+    host.insertBefore(d,host.firstChild)}
+  function go(){css();var r=document.getElementById('ec-instantsite-website');if(r&&!r.__vue_app__)return;panel();summary();storeHome()}
+  go();document.readyState==='loading'&&document.addEventListener('DOMContentLoaded',go);setInterval(go,600);
 })();
