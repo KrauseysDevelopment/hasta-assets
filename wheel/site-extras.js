@@ -620,9 +620,13 @@
   function hero(){Array.prototype.forEach.call(document.querySelectorAll('.hfp-hero'),palms);
     Array.prototype.forEach.call(document.querySelectorAll('.hfp-eyebrow'),function(e){if(e.dataset.hfPalm)return;e.dataset.hfPalm='1';
       e.insertBefore(img(PINK,'hf-palmi'),e.firstChild);e.appendChild(img(TEAL,'hf-palmi hf-palm--flip'))})}
-  function foot(){var f=document.querySelector('[id^="tile-footer"]');if(!f||f.querySelector('.hf-foot-run'))return;
+  function foot(){var f=document.querySelector('[id^="tile-footer"]');if(f&&f.querySelector('.hf-foot-run')){credit(f.querySelector('.hf-foot-run').parentNode);return}if(!f)return;
     var box=f.querySelector('.ins-tile__wrap')||f;var d=document.createElement('div');d.className='hf-foot-run';
-    d.appendChild(img(PINK,''));d.insertAdjacentHTML('beforeend','<div><b>'+TAG+'</b><small>'+RISK+'</small></div>');d.appendChild(img(TEAL,'hf-palm--flip'));box.appendChild(d)}
+    d.appendChild(img(PINK,''));d.insertAdjacentHTML('beforeend','<div><b>'+TAG+'</b><small>'+RISK+'</small></div>');d.appendChild(img(TEAL,'hf-palm--flip'));box.appendChild(d)
+    credit(box)}
+  // Developer credit (Zach's suggestion, 2026-11-14): one quiet line under the tagline, email is a mailto.
+  function credit(box){if(box.querySelector('.hf-credit'))return;var p=document.createElement('p');p.className='hf-credit';
+    p.innerHTML='Developed by Krausey’s Development. Want a website like this? Email <a href="mailto:krauseysdevelopment@gmail.com?subject=Website%20inquiry">krauseysdevelopment@gmail.com</a>';box.appendChild(p)}
   function about(){var pg=document.querySelector('#tile-custom-code-gRb3gA .hf-page');if(!pg)return;
     Array.prototype.forEach.call(pg.querySelectorAll('p'),function(p){
       if(/patented two-wheel design/.test(p.textContent)&&!p.dataset.hf){p.dataset.hf='1';

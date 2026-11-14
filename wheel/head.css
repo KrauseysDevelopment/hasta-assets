@@ -112,3 +112,13 @@ html body .product-details__navigation{display:none!important}
    instead of flashing at the top. */
 #tile-category-products-2CSpBJ{display:none!important}
 html:not(:has(#wheel)) #tile-custom-code-Li6grF{margin-top:100vh!important}
+
+/* Footer type up a step (Nick 2026-11-14): links + contact lines were 12px on desktop. */
+html body .ins-tile--footer .ins-tile__link{font-size:15px!important;line-height:1.5!important}
+html body .ins-tile--footer .ins-tile__contacts,html body .ins-tile--footer .ins-tile__contacts p{font-size:15px!important;line-height:1.55!important}
+html body .ins-tile--footer .section__container .uppercase{font-size:13.5px!important}
+html body .hf-foot-run b{font-size:1.2rem}html body .hf-foot-run small{font-size:.95rem}
+/* Developer credit line under the tagline (site-extras adds it). */
+html body .hf-credit{margin:0;padding:12px 16px 22px;background:#0E0E11;color:rgba(242,241,245,.62);font-size:.82rem;line-height:1.5;text-align:center}
+html body .hf-credit a{color:#13C2BB!important;text-decoration:underline;text-underline-offset:2px}
+html body .hf-credit a:hover{color:#F607B0!important}
