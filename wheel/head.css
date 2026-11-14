@@ -90,7 +90,7 @@ html body #tile-hf-wheel{
 @media(max-width:1180px){html body #tile-hf-wheel{background:linear-gradient(160deg,#FFEEF8 0%,#FBFAFC 40%,#FBFAFC 65%,#E6FAF8 100%)!important}}
 @supports ((-webkit-background-clip:text) or (background-clip:text)){
   html body #wheel .hf-h3{
-    display:inline-block;padding:0 1.5em;
+    display:table;margin-left:auto;margin-right:auto;padding:0 1.5em;
     background:
       url(../theme/palm-pink-sm.png) left center/1.05em 1.3em no-repeat,
       url(../theme/palm-teal-sm-flip.png) right center/1.05em 1.3em no-repeat,
@@ -101,4 +101,4 @@ html body #tile-hf-wheel{
 }
 /* Nick 2026-11-14: no "Live preview..." line under Make It Yours. */
 html body #wheel .hf-builder>.hf-sub{display:none!important}
-html body #wheel .hf-builder>.hf-h3{margin-bottom:16px}
+html body #wheel .hf-builder>.hf-h3{margin:0 auto 16px}
