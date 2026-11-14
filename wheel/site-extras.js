@@ -650,13 +650,13 @@
     'html.hf-stk .grid__wrap-inner{flex-wrap:wrap}#hf-stk{flex:0 0 100%;max-width:100%;margin:0 0 34px;padding:0;box-sizing:border-box}'+
     'html.hf-stk .grid__products:not(:has(.grid-product:not(.grid-product--id-'+PID+'))){display:none}'+
     '#hf-stk h2{font-size:1.5rem;font-weight:900;margin:0 0 4px}#hf-stk>p{margin:0 0 18px;color:#5a5664}'+
-    '.hfs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px}'+
-    '.hfs-card{background:#fff;border:1px solid #eee;border-radius:14px;overflow:hidden;display:flex;flex-direction:column}'+
-    '.hfs-card img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;background:#f4f4f4}'+
-    '.hfs-body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}'+
-    '.hfs-name{font-weight:800;font-size:.92rem;line-height:1.25;color:#0E0E11}.hfs-price{font-size:.88rem;color:#5a5664}'+
-    '.hfs-add{margin-top:auto;border:0;border-radius:999px;background:#0E0E11;color:#fff;font-weight:800;font-size:.85rem;padding:9px 12px;cursor:pointer}'+
-    '.hfs-add:hover{background:#C4008A}.hfs-add[disabled]{opacity:.6;cursor:wait}';
+    '#hf-stk .hfs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px}'+
+    '#hf-stk .hfs-card{background:#fff;border:1px solid #eee;border-radius:14px;overflow:hidden;display:flex;flex-direction:column}'+
+    '#hf-stk .hfs-card img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;background:#f4f4f4}'+
+    '#hf-stk .hfs-body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}'+
+    '#hf-stk .hfs-name{font-weight:800;font-size:.92rem;line-height:1.25;color:#0E0E11}#hf-stk .hfs-price{font-size:.88rem;color:#5a5664}'+
+    '#hf-stk .hfs-add{margin-top:auto;border:0;border-radius:999px;background:#0E0E11;color:#fff;font-weight:800;font-size:.85rem;padding:9px 12px;cursor:pointer}'+
+    '#hf-stk .hfs-add:hover{background:#C4008A}#hf-stk .hfs-add[disabled]{opacity:.6;cursor:wait}';
   function css(){if(document.getElementById('hf-stk-css'))return;var s=document.createElement('style');s.id='hf-stk-css';s.textContent=CSS;document.head.appendChild(s)}
   function add(name,btn){if(!window.Ecwid||!Ecwid.Cart)return;btn.disabled=true;var t=btn.textContent;btn.textContent='Adding…';
     var tries=['Design','Sticker Number'];
@@ -712,7 +712,7 @@
     var d=document.createElement('div');d.id='hf-gc';
     d.innerHTML='<label for="hfg-in">Gift card amount</label><div class="hfg-row"><div class="hfg-amt"><span>$</span><input id="hfg-in" type="number" inputmode="numeric" min="'+MIN+'" max="'+MAX+'" step="1" value="50" aria-describedby="hfg-help"></div></div>'+
       '<div class="hfg-chips">'+[25,50,75,100,150].map(function(n){return '<button type="button" data-v="'+n+'">$'+n+'</button>'}).join('')+'</div>'+
-      '<p class="hfg-help" id="hfg-help">Any whole-dollar amount from $'+MIN+' to $'+MAX.toLocaleString()+'. Mailed as a physical card; no e-gift cards yet.</p>'+
+      '<p class="hfg-help" id="hfg-help">Any whole-dollar amount from $'+MIN+' to $'+MAX.toLocaleString()+'. Mailed as a physical card.</p>'+
       '<button type="button" class="hfg-add">Add $50 gift card to bag</button>';
     anchor.parentNode.insertBefore(d,anchor);
     var inp=d.querySelector('input'),btn=d.querySelector('.hfg-add'),help=d.querySelector('.hfg-help');
