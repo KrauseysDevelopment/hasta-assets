@@ -76,3 +76,26 @@ html body #hf-ideas a.hf-ideas__btn:hover,html body #hf-ideas a.hf-ideas__btn:ho
 html:has(#tile-custom-code-Li6grF) .ins-tile--footer .section__container{background:#0E0E11!important;padding-top:8px!important}
 /* Zach 2026-11-14: no text under the Run Fasta logo (the logo already says it). */
 .hf-bandrun p,.hf-run__tag,.hf-run__risk{display:none!important}
+
+/* Landing (wheel) section, Zach + Nick 2026-11-14 "spice it up": soft pink-to-teal wash instead of flat
+   white, small palms lining both edges (in the empty gutters beside the 1180px content), and
+   "Make It Yours" in the title gradient between two palms. */
+html body #tile-hf-wheel{
+  background:
+    url(../theme/palm-strip-l.png) left 14px top 26px/150px auto repeat-y,
+    url(../theme/palm-strip-r.png) right 14px top 26px/150px auto repeat-y,
+    linear-gradient(135deg,#FFEEF8 0%,#FBFAFC 38%,#FBFAFC 62%,#E6FAF8 100%)!important;
+}
+@media(max-width:1400px){html body #tile-hf-wheel{background-size:96px auto,96px auto,auto!important;background-position:left 4px top 20px,right 4px top 20px,0 0!important}}
+@media(max-width:1180px){html body #tile-hf-wheel{background:linear-gradient(160deg,#FFEEF8 0%,#FBFAFC 40%,#FBFAFC 65%,#E6FAF8 100%)!important}}
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  html body #wheel .hf-h3{
+    display:inline-block;padding:0 1.5em;
+    background:
+      url(../theme/palm-pink-sm.png) left center/1.05em 1.3em no-repeat,
+      url(../theme/palm-teal-sm-flip.png) right center/1.05em 1.3em no-repeat,
+      linear-gradient(90deg,#F607B0 0%,#A23BE0 52%,#0FB3AC 100%) content-box;
+    -webkit-background-clip:border-box,border-box,text;background-clip:border-box,border-box,text;
+    color:transparent;-webkit-text-fill-color:transparent;
+  }
+}
