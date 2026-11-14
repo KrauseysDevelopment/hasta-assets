@@ -791,12 +791,12 @@
    =================================================================================================== */
 (function(){
   var KEY='AIzaSyBoYxAtf_Uf_wykqQKgYflmJ213Nj0q1us',API='https://places.googleapis.com/v1/';
-  var CSS='.hfa-wrap{position:relative}'+
-    '.hfa-list{position:absolute;left:0;right:0;top:100%;z-index:60;margin:4px 0 0;padding:6px 0 0;list-style:none;background:#fff;border:1px solid rgba(14,14,17,.14);border-radius:12px;box-shadow:0 12px 28px rgba(14,14,17,.14);overflow:hidden}'+
-    '.hfa-list li{padding:10px 14px;font-size:.92rem;line-height:1.3;color:#0E0E11;cursor:pointer}'+
-    '.hfa-list li b{font-weight:700}.hfa-list li span{color:#6B6875}'+
-    '.hfa-list li[aria-selected=true],.hfa-list li:hover{background:#FFEEF8}'+
-    '.hfa-list .hfa-by{cursor:default;padding:6px 14px 8px;font-size:.72rem;color:#6B6875;text-align:right;background:#fff!important}';
+  var CSS='html body .ec-store .hfa-wrap{position:relative}'+
+    'html body .ec-store .hfa-list{position:absolute;left:0;right:0;top:100%;z-index:60;margin:4px 0 0;padding:6px 0 0;list-style:none!important;background:#fff!important;border:1px solid rgba(14,14,17,.14)!important;border-radius:12px;box-shadow:0 12px 28px rgba(14,14,17,.14)!important;overflow:hidden}'+
+    'html body .ec-store .hfa-list li{display:block!important;list-style:none!important;padding:10px 14px;font-size:.92rem;line-height:1.3;color:#0E0E11;cursor:pointer}'+
+    'html body .ec-store .hfa-list li b{font-weight:700}html body .ec-store .hfa-list li span{color:#6B6875}'+
+    'html body .ec-store .hfa-list li[aria-selected=true],html body .ec-store .hfa-list li:hover{background:#FFEEF8!important}'+
+    'html body .ec-store .hfa-list .hfa-by{cursor:default;padding:6px 14px 8px;font-size:.72rem;color:#6B6875;text-align:right;background:#fff!important}';
   function css(){if(document.getElementById('hf-addr-css'))return;var s=document.createElement('style');s.id='hf-addr-css';s.textContent=CSS;document.head.appendChild(s)}
   var esc=function(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
   function uuid(){try{return crypto.randomUUID()}catch(e){return 'hf'+Date.now()+Math.random().toString(16).slice(2)}}
