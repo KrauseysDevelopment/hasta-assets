@@ -107,7 +107,8 @@ html body .product-details__navigation{display:none!important}
 
 /* Flip Flops page first paint (debug 2026-11-14): the native "Best Sellers" product tile was hidden
    only by Site Style CSS (applied after first paint), and the wheel is built by JS, so with the pairs
-   tile gone the grid flashed at the top on every load. Hide it here, and hold a screen's height for the
-   wheel tile until #wheel exists so the band below can't flash up into view either. */
+   tile gone the grid flashed at the top on every load. Hide it here. The wheel tile itself is created by
+   wheel.js (not in the server HTML), so until #wheel exists the band below is pushed a screen down
+   instead of flashing at the top. */
 #tile-category-products-2CSpBJ{display:none!important}
-#tile-hf-wheel:not(:has(#wheel)){min-height:100vh}
+html:not(:has(#wheel)) #tile-custom-code-Li6grF{margin-top:100vh!important}
