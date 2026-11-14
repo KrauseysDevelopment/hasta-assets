@@ -102,3 +102,5 @@ html body #tile-hf-wheel{
 /* Nick 2026-11-14: no "Live preview..." line under Make It Yours. */
 html body #wheel .hf-builder>.hf-sub{display:none!important}
 html body #wheel .hf-builder>.hf-h3{margin:0 auto 16px}
+/* Nick 2026-11-14: no previous/next product arrows on product pages (they jumped to random products). */
+html body .product-details__navigation{display:none!important}
