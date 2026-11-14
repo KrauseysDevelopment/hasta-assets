@@ -192,7 +192,7 @@
   '.hfb__x{border:0;background:none;font-size:28px;line-height:1;cursor:pointer;color:#0E0E11;padding:4px 8px}'+
   '.hfb__note{margin:0;padding:10px 22px;background:#E7FAF8;color:#0B6E69;font-size:.9rem;font-weight:700}'+
   '.hfb__warn{margin:12px 0;padding:12px 14px;border-radius:10px;background:#FFE8F6;color:#7A0056;font-size:.9rem;font-weight:700;line-height:1.4}.hfb__warn a{color:inherit;text-decoration:underline}'+
-  '.hfb__item--odd .hfb__name{color:#C4008A}.hfb__rm{margin-top:6px;padding:0;border:0;background:none;color:#0E0E11;font:inherit;font-size:.82rem;font-weight:700;text-decoration:underline;cursor:pointer}'+
+  '.hfb__item--odd .hfb__name{color:#C4008A}'+
   'html.hf-unpaired .ec-store__cart-page .ec-cart__checkout .form-control--primary{display:none!important}'+
   '.hfb__btn--go[disabled]{opacity:.45;cursor:not-allowed}'+
   '.hfb__list{flex:1;overflow:auto;padding:8px 22px}'+
