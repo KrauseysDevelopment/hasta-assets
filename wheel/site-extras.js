@@ -310,8 +310,8 @@
       rows.push('<div class="hfb__item"><div class="hfb__img"><img alt="" src="'+esc(photo(p.sole,p.strap))+'"></div><div class="hfb__meta"><div class="hfb__name">Custom pair</div><div class="hfb__opts">'+esc(p.sole)+' sole &middot; '+esc(p.strap)+' strap<br>'+esc(sizeLabel(p.size))+'</div>'+step(p.qty,'p-','p+',at,10)+'</div><div class="hfb__price">'+money(p.unit*p.qty)+'<button type="button" class="hfb__rm" data-act="prm" '+at+'>Remove</button></div></div>')});
     Object.keys(soleQ).forEach(function(a){if(soleQ[a]>0){count+=soleQ[a];var p=a.split('|');rows.push('<div class="hfb__item"><div class="hfb__img"></div><div class="hfb__meta"><div class="hfb__name">Sole only</div><div class="hfb__opts">'+esc(p[0])+' &middot; '+esc(p[1])+(soleQ[a]>1?' &middot; Qty '+soleQ[a]:'')+'</div></div><div class="hfb__price">'+money((soleP[a]||0)*soleQ[a])+'</div></div>')}});
     Object.keys(strapQ).forEach(function(b){if(strapQ[b]>0){var p=b.split('|');rows.push('<div class="hfb__item"><div class="hfb__img"></div><div class="hfb__meta"><div class="hfb__name">Strap only</div><div class="hfb__opts">'+esc(p[0])+' &middot; '+esc(p[1])+'</div></div><div class="hfb__price">'+money((strapP[b]||0)*strapQ[b])+'</div></div>')}});
-    other.forEach(function(it){count+=it.quantity;var idx=items.indexOf(it),o=it.options||{},opts=Object.keys(o).map(function(k){return esc(k)+': '+esc(o[k])}).join(' &middot; ');
-      rows.push('<div class="hfb__item"><div class="hfb__img">'+(function(){var m=it.product.mediaItem||{},u=m.image160pxUrl||m.image400pxUrl||it.product.imageUrl;return u?'<img alt="" src="'+esc(u)+'">':''})()+'</div><div class="hfb__meta"><div class="hfb__name">'+esc(it.product.name)+'</div><div class="hfb__opts">'+opts+'</div>'+step(it.quantity,'l-','l+','data-i="'+idx+'"',0)+'</div><div class="hfb__price">'+money((it.product.price||0)*it.quantity)+'<button type="button" class="hfb__rm" data-act="lrm" data-i="'+idx+'">Remove</button></div></div>')});
+    other.forEach(function(it){count+=it.quantity;var idx=items.indexOf(it),o=it.options||{},opts=Object.keys(o).map(function(k){return esc(k==='Sticker Number'?'Design':k)+': '+esc(o[k])}).join(' &middot; '),stk=window.HF_STICKER_PHOTO&&window.HF_STICKER_PHOTO(it);
+      rows.push('<div class="hfb__item"><div class="hfb__img">'+(function(){var m=it.product.mediaItem||{},u=stk||m.image160pxUrl||m.image400pxUrl||it.product.imageUrl;return u?'<img alt="" src="'+esc(u)+'">':''})()+'</div><div class="hfb__meta"><div class="hfb__name">'+esc(it.product.name)+'</div><div class="hfb__opts">'+opts+'</div>'+step(it.quantity,'l-','l+','data-i="'+idx+'"',0)+'</div><div class="hfb__price">'+money((it.product.price||0)*it.quantity)+'<button type="button" class="hfb__rm" data-act="lrm" data-i="'+idx+'">Remove</button></div></div>')});
     return {html:rows.length?rows.join(''):'<p class="hfb__empty">Your bag is empty.</p>',sub:items.reduce(function(a,it){return a+(it.product.price||0)*it.quantity},0),count:count,empty:!items.length};
   }
   var lastCount=null;
@@ -570,7 +570,7 @@
     '.hf-run__risk{margin:4px 0 0;font-size:.95rem;color:#5a5664;font-style:italic}'+
     '.hf-run .hf-palm{width:min(170px,20vw);bottom:20px;opacity:1}.hf-run .hf-palm--l{left:4%}.hf-run .hf-palm--r{right:4%}'+
     '@media(max-width:700px){.hf-run .hf-palm{display:none}}'+
-    '.hf-foot-run{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;text-align:center;padding:22px 16px 6px;margin-top:10px;border-top:1px solid rgba(255,255,255,.14);color:#fff}'+
+    '.hf-foot-run{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;text-align:center;padding:20px 16px 26px;margin:0;background:#0E0E11;color:#fff}'+
     '.hf-foot-run img{height:54px;width:auto}.hf-foot-run b{display:block;font-size:1.1rem;font-weight:900}.hf-foot-run small{display:block;opacity:.75;font-size:.85rem}';
   function css(){if(document.getElementById('hf-z8-css'))return;var s=document.createElement('style');s.id='hf-z8-css';s.textContent=CSS;document.head.appendChild(s)}
   function img(src,cls,alt){var i=document.createElement('img');i.src=src;i.alt=alt||'';i.className=cls;i.loading='lazy';i.decoding='async';if(!alt)i.setAttribute('aria-hidden','true');return i}
@@ -610,4 +610,54 @@
   function go(){css();var r=document.getElementById('ec-instantsite-website');if(r&&!r.__vue_app__)return;
     nav();band();bandFit();hero();foot();about();faq()}
   go();document.readyState==='loading'&&document.addEventListener('DOMContentLoaded',go);setInterval(go,800);
+})();
+
+
+/* ===================================================================================================
+   9. Stickers (Zach 2026-11-14): "when you click on stickers you see all the options", obvious names.
+   Retail keeps ONE product "Hasta Stickers" (eCom 871054959) with 18 variants, attribute "Design"
+   (renamed from "Sticker Number"; values renamed from "4-Black Dog" etc.), so the POS is unchanged.
+   The Stickers category page shows all 18 as cards with their own photo and Add to Bag.
+   Photos: hasta-assets/stickers/NN-slug.jpg (square crops of the product shots). Prices from Retail:
+   $3, except How to Put On / Large Run Fasta / Life Is Better at $4. If Retail changes, change STK.
+   =================================================================================================== */
+(function(){
+  var PID=871054959,BASE='https://cdn.jsdelivr.net/gh/KrauseysDevelopment/hasta-assets@da9f4fd3a7a8fcad1f1e073e63ce5efce8ee4924/stickers/';
+  var STK=[['Support Your Local Flip Flop Dealer','01-support-local',3],['Support Your Local Flip Flop Dealer (Holographic)','02-support-local-holo',3],
+    ['Hasta on the Moon','03-hasta-on-the-moon',3],['Black Dog','04-black-dog',3],['Beach Day','05-beach-day',3],['Tattoo Shark','06-tattoo-shark',3],
+    ['Hasta Tiki','07-hasta-tiki',3],['Hula Girl','08-hula-girl',3],['Shark Girl','09-shark-girl',3],['Hot Rod','10-hot-rod',3],['Skelly Shark','11-skelly-shark',3],
+    ['Lightning Bolt','12-lightning-bolt',3],['Wear Hasta Run Fasta (Small)','13-run-fasta-small',3],['Old School Tattoo Ship','14-tattoo-ship',3],
+    ['Old School Tattoo Flip Flops','15-tattoo-flip-flops',3],['How to Put On Flip Flops','16-how-to-put-on',4],['Wear Hasta Run Fasta (Large)','17-run-fasta-large',4],
+    ['Life Is Better in Flip Flops','18-life-is-better',4]];
+  var BY={};STK.forEach(function(r){BY[r[0]]=r});
+  window.HF_STICKER_PHOTO=function(it){if(!it||!it.product||it.product.id!==PID)return null;var o=it.options||{},v=o.Design||o['Sticker Number'];return BY[v]?BASE+BY[v][1]+'.jpg':null};
+  var esc=function(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+  var CSS='html.hf-stk .grid-product--id-'+PID+'{display:none!important}'+
+    '#hf-stk{max-width:1100px;margin:0 auto 34px;padding:0 16px}#hf-stk h2{font-size:1.5rem;font-weight:900;margin:0 0 4px}#hf-stk>p{margin:0 0 18px;color:#5a5664}'+
+    '.hfs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px}'+
+    '.hfs-card{background:#fff;border:1px solid #eee;border-radius:14px;overflow:hidden;display:flex;flex-direction:column}'+
+    '.hfs-card img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;background:#f4f4f4}'+
+    '.hfs-body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}'+
+    '.hfs-name{font-weight:800;font-size:.92rem;line-height:1.25;color:#0E0E11}.hfs-price{font-size:.88rem;color:#5a5664}'+
+    '.hfs-add{margin-top:auto;border:0;border-radius:999px;background:#0E0E11;color:#fff;font-weight:800;font-size:.85rem;padding:9px 12px;cursor:pointer}'+
+    '.hfs-add:hover{background:#C4008A}.hfs-add[disabled]{opacity:.6;cursor:wait}';
+  function css(){if(document.getElementById('hf-stk-css'))return;var s=document.createElement('style');s.id='hf-stk-css';s.textContent=CSS;document.head.appendChild(s)}
+  function add(name,btn){if(!window.Ecwid||!Ecwid.Cart)return;btn.disabled=true;var t=btn.textContent;btn.textContent='Adding…';
+    var tries=['Design','Sticker Number'];
+    (function go(i){var o={};o[tries[i]]=name;Ecwid.Cart.addProduct({id:PID,quantity:1,options:o,callback:function(ok){
+      if(!ok&&i+1<tries.length)return go(i+1);btn.disabled=false;btn.textContent=ok?'Added ✓':'Try again';setTimeout(function(){btn.textContent=t},1600);
+      if(ok&&window.HastaBag)HastaBag.open()}})})(0)}
+  function grid(){var onCat=/^\/products\/stickers\/?$/.test(location.pathname);document.documentElement.classList.toggle('hf-stk',onCat);
+    var old=document.getElementById('hf-stk');if(!onCat){if(old)old.remove();return}
+    if(old)return;var host=document.querySelector('.ec-store .grid__products, .ec-store .grid-product');if(!host)return;
+    host=host.closest('.grid__products')||host.parentNode;
+    var d=document.createElement('div');d.id='hf-stk';
+    d.innerHTML='<h2>Pick your stickers</h2><p>'+STK.length+' designs. Made by Sticker Mule for coolers, boards, bumpers and water bottles.</p><div class="hfs-grid">'+
+      STK.map(function(r){return '<div class="hfs-card"><img loading="lazy" alt="'+esc(r[0])+' sticker" src="'+BASE+r[1]+'.jpg"><div class="hfs-body"><div class="hfs-name">'+esc(r[0])+'</div><div class="hfs-price">$'+r[2].toFixed(2)+'</div><button type="button" class="hfs-add" data-name="'+esc(r[0])+'">Add to Bag</button></div></div>'}).join('')+'</div>';
+    d.addEventListener('click',function(e){var b=e.target.closest('.hfs-add');if(b)add(b.getAttribute('data-name'),b)});
+    host.parentNode.insertBefore(d,host)}
+  function label(){if(!/\/products\/hasta-stickers/.test(location.pathname))return;
+    Array.prototype.forEach.call(document.querySelectorAll('.product-details-module__title'),function(t){if(t.textContent.trim()==='Sticker Number')t.textContent='Design'})}
+  function go(){css();var r=document.getElementById('ec-instantsite-website');if(r&&!r.__vue_app__)return;grid();label()}
+  go();document.readyState==='loading'&&document.addEventListener('DOMContentLoaded',go);setInterval(go,700);
 })();
