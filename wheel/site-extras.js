@@ -698,9 +698,13 @@
     '#hf-gc .hfg-chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 0}#hf-gc .hfg-chips button{border:1px solid #ddd;background:#fff;border-radius:999px;padding:6px 12px;font-weight:700;cursor:pointer}#hf-gc .hfg-chips button:hover{border-color:#F607B0;color:#C4008A}'+
     '#hf-gc .hfg-help{margin:8px 0 0;font-size:.85rem;color:#5a5664}#hf-gc .hfg-err{color:#C4008A;font-weight:700}'+
     '#hf-gc .hfg-add{margin-top:14px;width:100%;max-width:360px;height:52px;border:0;border-radius:999px;background:#0E0E11;color:#fff;font-weight:800;font-size:1rem;cursor:pointer}#hf-gc .hfg-add:hover{background:#C4008A}#hf-gc .hfg-add[disabled]{opacity:.5;cursor:not-allowed}'+
-    '#hf-ff{display:flex;align-items:center;gap:18px;margin:0 0 28px;padding:18px 20px;border-radius:16px;background:#0E0E11;color:#fff;flex-wrap:wrap}'+
-    '#hf-ff img{width:96px;height:96px;object-fit:contain;background:#fff;border-radius:12px}#hf-ff .hff-t{flex:1;min-width:200px}#hf-ff b{display:block;font-size:1.25rem;font-weight:900}#hf-ff small{display:block;opacity:.8;margin-top:4px;font-size:.92rem}'+
-    '#hf-ff a{display:inline-block;padding:11px 18px;border-radius:999px;font-weight:800;text-decoration:none;white-space:nowrap}#hf-ff .hff-a{background:#F607B0;color:#0E0E11!important}#hf-ff .hff-b{background:#13C2BB;color:#0E0E11!important}';
+    '#hf-ff{max-width:1120px;margin:34px auto 0;padding:0 16px;box-sizing:border-box;background:none}#hf-ff .hff-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 16px}'+
+    '#hf-ff h2{margin:0;font-size:1.6rem;font-weight:900;color:#0E0E11}#hf-ff .hff-head a{font-weight:800;color:#C4008A;text-decoration:none}'+
+    '#hf-ff .hff-head--merch{margin:40px 0 0}'+
+    '#hf-ff .hff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px}'+
+    '#hf-ff .hff-card{display:flex;flex-direction:column;background:#fff;border:1px solid #eee;border-radius:14px;overflow:hidden;text-decoration:none;color:#0E0E11}'+
+    '#hf-ff .hff-img{display:block;aspect-ratio:1/1;background:#F4F2EF}#hf-ff .hff-img img{width:100%;height:100%;object-fit:cover;display:block}'+
+    '#hf-ff .hff-name{padding:10px 12px 0;font-weight:800}#hf-ff .hff-meta{padding:2px 12px 0;font-size:.88rem;color:#5a5664}#hf-ff .hff-go{padding:6px 12px 12px;font-weight:800;color:#C4008A;font-size:.9rem}';
   function css(){if(document.getElementById('hf-gc-css'))return;var s=document.createElement('style');s.id='hf-gc-css';s.textContent=CSS;document.head.appendChild(s)}
   function val(i){var n=Math.round(parseFloat(String(i.value).replace(/[^0-9.]/g,'')));return isFinite(n)?n:0}
   function panel(){var page=document.querySelector('.ec-store__product-page--'+ID);if(!page||page.querySelector('#hf-gc'))return;
@@ -721,11 +725,23 @@
   // Checkout summary: "Hasta Gift Card x 50 $50.00" reads fine; just say what it is.
   function summary(){Array.prototype.forEach.call(document.querySelectorAll('.ec-cart-item'),function(i){var t=i.querySelector('.ec-cart-item__title');if(!t||!/^Hasta Gift Card$/.test(t.textContent.trim()))return;
     var o=i.querySelector('.ec-cart-item__options');if(o&&!o.dataset.hfg){o.dataset.hfg='1';o.textContent='Mailed gift card (amount = quantity × $1)'}})}
-  function storeHome(){if(!/^\/products\/?$/.test(location.pathname)){var x=document.getElementById('hf-ff');if(x)x.remove();return}
-    if(document.getElementById('hf-ff'))return;var host=document.querySelector('.ec-store .grid__wrap, .ec-store .ec-store__content-wrapper, .ec-store');if(!host)return;
-    var d=document.createElement('div');d.id='hf-ff';
-    d.innerHTML='<img alt="Hot Pink sole with Teal strap" src="https://cdn.jsdelivr.net/gh/KrauseysDevelopment/hasta-assets@f1e48a4fd6661d55ea06467f7096fb5511c1f87c/combos/pink--teal.jpg"><div class="hff-t"><b>Flip flops</b><small>330 sole and strap combos, $40 adult / $30 kids. Pre-sale: ships around the first week of December.</small></div><a class="hff-a" href="/shop-pairs">Shop favorites</a><a class="hff-b" href="/#wheel">Build your own</a>';
-    host.insertBefore(d,host.firstChild)}
+  // The store's all-products page (/products) promised "Twelve pairs" (CSS hero) but only listed merch: the pairs
+  // aren't regular products. Show the same twelve cards as /shop-pairs (fetched from that page, one source),
+  // which open the same size picker, then the merch grid below.
+  var pairsHTML=null,COMBOS='https://cdn.jsdelivr.net/gh/KrauseysDevelopment/hasta-assets@f1e48a4fd6661d55ea06467f7096fb5511c1f87c/combos/';
+  function slug(n){return String(n).toLowerCase().replace(/[^a-z]+/g,'-').replace(/^-|-$/g,'')}
+  function loadPairs(cb){if(pairsHTML!==null)return cb(pairsHTML);
+    fetch('/shop-pairs',{credentials:'same-origin'}).then(function(r){return r.text()}).then(function(t){
+      var doc=new DOMParser().parseFromString(t,'text/html');
+      pairsHTML=[].map.call(doc.querySelectorAll('#hf-pairs a.hfp-card[href*="sole="]'),function(a){var u=new URL(a.getAttribute('href'),location.href),so=u.searchParams.get('sole'),st=u.searchParams.get('strap');
+        var name=(a.querySelector('.hfp-name')||{}).textContent||(so+' / '+st);
+        return '<a class="hfp-card hff-card" href="'+a.getAttribute('href')+'"><span class="hff-img"><img loading="lazy" alt="'+name.replace(/"/g,'')+'" src="'+COMBOS+slug(so)+'--'+slug(st)+'.jpg"></span><span class="hff-name">'+name+'</span><span class="hfp-meta hff-meta"></span><span class="hfp-go hff-go">Pick your size &rarr;</span></a>'}).join('');
+      cb(pairsHTML)}).catch(function(){pairsHTML='';cb('')})}
+  function storeHome(){if(!/^\/products\/?$/.test(location.pathname))return;
+    var grid=document.querySelector('.ec-store__category-page--0 .ec-grid.grid__wrap');if(!grid||document.getElementById('hf-ff'))return;
+    var d=document.createElement('section');d.id='hf-ff';d.innerHTML='<div class="hff-head"><h2>Flip flops</h2><a href="/#wheel">or build your own on the wheel &rarr;</a></div><div class="hff-grid"></div><div class="hff-head hff-head--merch"><h2>Shirts, stickers, gift cards and more</h2></div>';
+    grid.parentNode.insertBefore(d,grid);
+    loadPairs(function(h){var g=d.querySelector('.hff-grid');if(g&&!g.children.length)g.innerHTML=h;if(!h)d.querySelector('.hff-grid').innerHTML='<p><a href="/shop-pairs">See the flip flop favorites &rarr;</a></p>'})}
   function go(){css();var r=document.getElementById('ec-instantsite-website');if(r&&!r.__vue_app__)return;panel();summary();storeHome()}
   go();document.readyState==='loading'&&document.addEventListener('DOMContentLoaded',go);setInterval(go,600);
 })();
