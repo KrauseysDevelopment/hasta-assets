@@ -69,3 +69,8 @@ html body .ec-store__product-page .product-details__product-title-wrapper>.extra
    Hasta Tote Bags). */
 .grid-product--id-867834595,.grid-product--id-867833894,.grid-product--id-867833676,.grid-product--id-867833936,
 .grid-category--id-208164304,.grid-category--id-208164334,.grid-category--id-208164089{display:none!important}
+html body #hf-ideas a.hf-ideas__btn,html body #hf-ideas a.hf-ideas__btn *{color:#0E0E11!important;text-decoration:none!important}
+html body #hf-ideas a.hf-ideas__btn:hover,html body #hf-ideas a.hf-ideas__btn:hover *{color:#fff!important}
+/* With the Run Fasta section gone, the band's bottom wave sits right on the footer's top wave:
+   on the Flip Flops page the footer drops its own wave. */
+html:has(#tile-custom-code-Li6grF) .ins-tile--footer .section__container{background:#0E0E11!important;padding-top:8px!important}
