@@ -58,3 +58,14 @@ html body .ec-store__product-page .product-details__product-title-wrapper>.extra
   html body .ec-store__product-page .product-details__product-title-wrapper>.extra-actions-wrapper__content::before,
   html body .ec-store__product-page .product-details__product-title-wrapper>.extra-actions-wrapper__content::after{width:1.5rem;height:1.9rem}
 }
+
+/* Flip Flops page (Zach 2026-11-14): pre-built pairs section removed; site-extras puts a
+   "Can't decide? Click here for some ideas" button to /shop-pairs in its place. */
+#tile-custom-code-V2fSDh{display:none!important}
+
+/* Raw sole/strap bin products are never sold on their own (straps are $0): keep them out of every
+   product grid. The wheel and pair cards add them as matched pairs; site-extras blocks checkout for
+   an unpaired bag. Also hide their categories and the empty Tote Bag category (the real one is
+   Hasta Tote Bags). */
+.grid-product--id-867834595,.grid-product--id-867833894,.grid-product--id-867833676,.grid-product--id-867833936,
+.grid-category--id-208164304,.grid-category--id-208164334,.grid-category--id-208164089{display:none!important}
