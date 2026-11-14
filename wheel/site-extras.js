@@ -122,8 +122,8 @@
   var ADULT=['5','6','7','8','9','10','11','12'], KIDS=['11','12','13','1','2','3'];
   var ALIAS={'Grey / Tan':'Tan'}, SLUG={'Tan':'grey-tan'};
   // Pair prices (Zach, 2026-11-01). The cart charges whatever Retail says; these are only for display.
-  // Retail: Sole - Adult $30, Sole - Kids $25, both strap bins $0. Change both together.
-  var PRICE={Adult:30,Kids:25};
+  // Retail: Sole - Adult $40, Sole - Kids $30, both strap bins $0 (Zach 2026-11-14). Change both together.
+  var PRICE={Adult:40,Kids:30};
   // Adult sizes are men's; women's = men's - 1 per Zach ("Mens 10/Womens 9"). Keep in step with HF.womens in the wheel.
   var WOMENS={5:4,6:5,7:6,8:7,9:8,10:9,11:10,12:11};
   function sizeLabel(size){var m=/^Adult (\d+)$/.exec(size||'');return m&&WOMENS[m[1]]!=null?size+' (M'+m[1]+' / W'+WOMENS[m[1]]+')':size}
@@ -222,7 +222,7 @@
   '.hfq__lbl{font-size:.74rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#6B6875;margin:12px 0 8px}'+
   '.hfq__sizes{display:flex;flex-wrap:wrap;gap:8px}'+
   '.hfq__s{min-width:46px;height:44px;border-radius:12px;border:2px solid rgba(14,14,17,.12);background:#fff;font-weight:800;font-size:.95rem;cursor:pointer;font-family:inherit;color:#0E0E11}'+
-  '.hfq__s--mw{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;height:auto;padding:6px 8px;min-width:52px}.hfq__s--mw small{font-size:.7rem;font-weight:600;opacity:.75}'+
+  '.hfq__s--mw{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;height:auto;padding:6px 8px;min-width:52px}.hfq__s--mw span,.hfq__s--mw small{font-size:.82rem;font-weight:700;line-height:1.15}.hfq__s--mw small{opacity:.75}'+
   '.hfq__hint{text-transform:none;letter-spacing:0;font-weight:600;margin-left:4px}'+
   '.hfq__s:hover{border-color:#13C2BB}.hfq__s.is-on{background:#F607B0;border-color:#F607B0;color:#0E0E11}'+
   '.hfq__msg{min-height:1.3em;margin:12px 0 0;font-size:.9rem;color:#B00060;font-weight:700}'+
@@ -482,10 +482,10 @@
   var FOOT={'Search Products':'/products/search','Account':'/products/account','Track Orders':'/products/account/orders',
     'Favorites':'/products/account/favorites','Shopping Bag':'/products/cart','Gift Cards':'/products/gift-card','View All':'/shop-pairs'};
   var FANS='874633242';
-  var MARQ='Spin the wheel  ✦  15 colors  ✦  330 combos  ✦  Made in the Florida sunshine ☀  ✦  ';
+  var MARQ='Spin the wheel  ✦  15 sole colors  ✦  22 strap colors  ✦  330 combos  ✦  Wear Hasta Run Fasta™  ✦  Made in the Florida sunshine ☀  ✦  ';
   var CSS='html:not(.hf-home) [id^="tile-announcement-bar"]{display:none!important}'+
     'html .ins-tile--announcement-bar .ins-tile__text p::after{content:"'+new Array(9).join(MARQ)+'"}'+
-    '@media(prefers-reduced-motion:reduce){html .ins-tile--announcement-bar .ins-tile__text p::after{content:"Spin the wheel  ✦  15 colors  ✦  330 combos  ✦  Made in the Florida sunshine ☀"}}'+
+    '@media(prefers-reduced-motion:reduce){html .ins-tile--announcement-bar .ins-tile__text p::after{content:"Spin the wheel  ✦  15 sole colors  ✦  22 strap colors  ✦  330 combos  ✦  Wear Hasta Run Fasta™  ✦  Made in the Florida sunshine ☀"}}'+
     'html .ec-cart--empty .ec-cart__message::after{content:"Your bag is empty.\\A\\A Spin the wheel and build a pair that is yours alone \\2014 15 colors, 330 combinations, made in the Florida sunshine."}'+
     '.grid-product--id-'+FANS+'{display:none!important}'+
     '.ec-store__product-page--'+FANS+' .details-product-purchase__add-to-bag,.ec-store__product-page--'+FANS+' .details-product-purchase__checkout,.ec-store__product-page--'+FANS+' .product-details__product-price{display:none!important}'+
@@ -537,4 +537,77 @@
   }
   function go(){css();home();var r=document.getElementById('ec-instantsite-website');if(r&&!r.__vue_app__)return;footer();copy();usFirst()}
   go();document.readyState==='loading'&&document.addEventListener('DOMContentLoaded',go);setInterval(go,700);
+})();
+
+
+/* ===================================================================================================
+   8. Zach + Amy, 2026-11-14.
+   - Nav "The Wheel" -> "Flip Flops".
+   - Patent pending wheel wording (About + FAQ); quality copy (high quality, long lasting: won't curl or stretch,
+     superior fit & finish) on the home band, About, FAQ. The wheel itself carries the instructions box.
+   - "Wear Hasta Run Fasta™ (Run in flip flops at your own risk)": logo block on home + About, line in the footer.
+   - Palm trees (embroidered-patch art from the shirts) on the dark bands, favorites heading, footer.
+   Text lives in editor sections, so it's patched here until a publish. Art: hasta-assets/theme/.
+   =================================================================================================== */
+(function(){
+  var ART='https://cdn.jsdelivr.net/gh/KrauseysDevelopment/hasta-assets@3a274c1961b538b7a75c251b5fa9120855e928d9/theme/';
+  var PINK=ART+'palm-pink.png',TEAL=ART+'palm-teal.png',LOGO=ART+'wear-hasta-run-fasta.jpg';
+  var TAG='Wear Hasta Run Fasta™',RISK='(Run in flip flops at your own risk)';
+  var CSS=
+    '.hf-palm{position:absolute;pointer-events:none;user-select:none;z-index:0;height:auto}'+
+    '.hf-palm--flip{transform:scaleX(-1)}'+
+    '#hf-band,.hfp-hero{position:relative;overflow:hidden}#hf-band>.hf-band__inner,.hfp-hero>*:not(.hf-palm){position:relative;z-index:1}'+
+    '#hf-band .hf-palm{width:min(260px,30vw);bottom:-18px;opacity:.9}#hf-band .hf-palm--l{left:-30px}#hf-band .hf-palm--r{right:-30px}'+
+    '.hfp-hero .hf-palm{width:min(200px,24vw);bottom:30px;opacity:.95}.hfp-hero .hf-palm--l{left:2%}.hfp-hero .hf-palm--r{right:2%}'+
+    '@media(max-width:700px){#hf-band .hf-palm{width:120px;opacity:.35}.hfp-hero .hf-palm{width:90px;opacity:.5;bottom:40px}}'+
+    '.hf-palmi{display:inline-block;height:1.6em;width:auto;vertical-align:-.45em;margin:0 .45em}'+
+    '.hf-quality{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:-18px 0 30px;padding:0;list-style:none}'+
+    '.hf-quality li{font-weight:800;font-size:.9rem;padding:7px 14px;border-radius:999px;border:2px solid #13C2BB;color:#fff}'+
+    '.hf-quality li:nth-child(2){border-color:#F607B0}'+
+    '.hf-run{background:#fff;padding:46px 20px 40px;text-align:center;position:relative;overflow:hidden}'+
+    '.hf-run img.hf-run__logo{display:block;width:min(520px,88vw);height:auto;margin:0 auto 10px}'+
+    '.hf-run__tag{margin:0;font-weight:900;font-size:1.35rem;color:#0E0E11;letter-spacing:.01em}'+
+    '.hf-run__risk{margin:4px 0 0;font-size:.95rem;color:#5a5664;font-style:italic}'+
+    '.hf-run .hf-palm{width:min(170px,20vw);bottom:20px;opacity:1}.hf-run .hf-palm--l{left:4%}.hf-run .hf-palm--r{right:4%}'+
+    '@media(max-width:700px){.hf-run .hf-palm{display:none}}'+
+    '.hf-foot-run{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;text-align:center;padding:22px 16px 6px;margin-top:10px;border-top:1px solid rgba(255,255,255,.14);color:#fff}'+
+    '.hf-foot-run img{height:54px;width:auto}.hf-foot-run b{display:block;font-size:1.1rem;font-weight:900}.hf-foot-run small{display:block;opacity:.75;font-size:.85rem}';
+  function css(){if(document.getElementById('hf-z8-css'))return;var s=document.createElement('style');s.id='hf-z8-css';s.textContent=CSS;document.head.appendChild(s)}
+  function img(src,cls,alt){var i=document.createElement('img');i.src=src;i.alt=alt||'';i.className=cls;i.loading='lazy';i.decoding='async';if(!alt)i.setAttribute('aria-hidden','true');return i}
+  function palms(host){if(!host||host.querySelector(':scope>.hf-palm'))return;host.appendChild(img(PINK,'hf-palm hf-palm--l'));host.appendChild(img(TEAL,'hf-palm hf-palm--r hf-palm--flip'))}
+  function runBlock(){var d=document.createElement('section');d.className='hf-run';d.setAttribute('aria-label',TAG);
+    d.appendChild(img(LOGO,'hf-run__logo','Wear Hasta Run Fasta (Run in flip flops at your own risk)'));
+    d.insertAdjacentHTML('beforeend','<p class="hf-run__tag">'+TAG+'</p><p class="hf-run__risk">'+RISK+'</p>');palms(d);return d}
+  function nav(){Array.prototype.forEach.call(document.querySelectorAll('[id^="tile-header"] a, .ins-header a, [class*="menu"] a'),function(a){
+    if(a.children.length)return;if(a.textContent.trim()==='The Wheel')a.textContent='Flip Flops'})}
+  function band(){var b=document.getElementById('hf-band');if(!b)return;palms(b);
+    var cards=b.querySelector('.hf-cards');if(cards&&!b.querySelector('.hf-quality'))cards.insertAdjacentHTML('afterend','<ul class="hf-quality"><li>High quality</li><li>Long lasting: won’t curl or stretch</li><li>Superior fit &amp; finish</li></ul>');
+    var tile=b.closest('[id^="tile-"]');if(tile&&!document.getElementById('hf-run-home')){var r=runBlock();r.id='hf-run-home';tile.parentNode.insertBefore(r,tile.nextSibling)}}
+  function hero(){Array.prototype.forEach.call(document.querySelectorAll('.hfp-hero'),palms);
+    Array.prototype.forEach.call(document.querySelectorAll('.hfp-eyebrow'),function(e){if(e.dataset.hfPalm)return;e.dataset.hfPalm='1';
+      e.insertBefore(img(PINK,'hf-palmi'),e.firstChild);e.appendChild(img(TEAL,'hf-palmi hf-palm--flip'))})}
+  function foot(){var f=document.querySelector('[id^="tile-footer"]');if(!f||f.querySelector('.hf-foot-run'))return;
+    var box=f.querySelector('.ins-tile__wrap')||f;var d=document.createElement('div');d.className='hf-foot-run';
+    d.appendChild(img(PINK,''));d.insertAdjacentHTML('beforeend','<div><b>'+TAG+'</b><small>'+RISK+'</small></div>');d.appendChild(img(TEAL,'hf-palm--flip'));box.appendChild(d)}
+  function about(){var pg=document.querySelector('#tile-custom-code-gRb3gA .hf-page');if(!pg)return;
+    Array.prototype.forEach.call(pg.querySelectorAll('p'),function(p){
+      if(/patented two-wheel design/.test(p.textContent)&&!p.dataset.hf){p.dataset.hf='1';
+        p.textContent='Our Flip Flop Color Selector is a patent pending wheel. Spin the outer clear wheel to match up your favorite colors and create a pair of flip flops. The back wheel is solid white and does not spin. The version on this site is the same idea, just digital: every picture is the actual color combination.'}
+      if(/^\s*A cushioned footbed and a soft, no-rub strap/.test(p.textContent)&&!p.dataset.hf){p.dataset.hf='1';
+        p.textContent='High quality and long lasting: Hasta flip flops don’t curl and don’t stretch, and the fit and finish are a cut above. A cushioned footbed and a soft, no-rub strap, in adult and kids sizes. Made for sand, pool decks, boardwalks, and the walk back to the car with wet feet. They fit true to size.'}
+    });
+    var h1=pg.querySelector('.hf-h1');if(h1&&!h1.dataset.hfPalm){h1.dataset.hfPalm='1';h1.appendChild(img(PINK,'hf-palmi'))}
+    var tile=pg.closest('[id^="tile-"]');if(tile&&!document.getElementById('hf-run-about')){var r=runBlock();r.id='hf-run-about';tile.parentNode.insertBefore(r,tile.nextSibling)}}
+  function faq(){var list=document.querySelectorAll('details.hf-faq');if(!list.length)return;
+    Array.prototype.forEach.call(list,function(d){var sm=d.querySelector('summary'),p=d.querySelector('p');if(!sm||!p||p.dataset.hfz)return;
+      if(/How does the color wheel work/.test(sm.textContent)){p.dataset.hfz='1';
+        p.textContent='Our patent pending flip flop color selector wheel: spin the outer clear wheel to match up your favorite colors and create a pair of flip flops (the back wheel is solid white and does not spin). The wheel on this site works the same way. Tap a sole or a strap, drag the sliders, or tap HASTA for a random pair; the pair under the pointer is your pair, and the photo is the actual color combination. Pick your size, add it to your bag, and your exact colors travel with the order.'}});
+    if(!document.getElementById('hf-faq-quality')){var first=list[0],q=document.createElement('details');q.className='hf-faq';q.id='hf-faq-quality';
+      q.innerHTML='<summary>Will they curl or stretch?</summary><div><p>No. Hasta flip flops are high quality and long lasting: they don’t curl and they don’t stretch, with a superior fit and finish pair after pair.</p></div>';
+      var after=list[1]||first;after.parentNode.insertBefore(q,after.nextSibling)}}
+  function bandFit(){var b=document.getElementById('hf-band');if(!b)return;Array.prototype.forEach.call(b.querySelectorAll('.hf-card p'),function(p){
+    if(/^A cushioned footbed/.test(p.textContent.trim())&&!p.dataset.hfz){p.dataset.hfz='1';p.textContent='High quality and long lasting: won’t curl, won’t stretch. A cushioned footbed and a soft, no-rub strap, in adult and kids sizes. Fits true to size.'}})}
+  function go(){css();var r=document.getElementById('ec-instantsite-website');if(r&&!r.__vue_app__)return;
+    nav();band();bandFit();hero();foot();about();faq()}
+  go();document.readyState==='loading'&&document.addEventListener('DOMContentLoaded',go);setInterval(go,800);
 })();
