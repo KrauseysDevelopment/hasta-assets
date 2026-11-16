@@ -156,4 +156,5 @@ html body .ins-tile--product-browser .ecwid-productBrowser{background:transparen
 html body .hf-social{display:flex;gap:12px;margin-top:16px}
 html body .hf-social a{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(242,241,245,.35);color:#F2F1F5!important;transition:color .15s,border-color .15s,background .15s}
 html body .hf-social a:hover{color:#F607B0!important;border-color:#F607B0;background:rgba(246,7,176,.08)}
-html body .hf-social a:nth-child(2):hover{color:#13C2BB!important;border-color:#13C2BB;background:rgba(19,194,187,.08)}
+html body .hf-social a:nth-child(2):hover,html body .hf-social a:nth-child(3):hover{color:#13C2BB!important;border-color:#13C2BB;background:rgba(19,194,187,.08)}
+html body .hf-social a:nth-child(3):hover{color:#F607B0!important;border-color:#F607B0;background:rgba(246,7,176,.08)}
