@@ -619,10 +619,18 @@
   function hero(){Array.prototype.forEach.call(document.querySelectorAll('.hfp-hero'),palms);
     Array.prototype.forEach.call(document.querySelectorAll('.hfp-eyebrow'),function(e){if(e.dataset.hfPalm)return;e.dataset.hfPalm='1';
       e.insertBefore(img(PINK,'hf-palmi'),e.firstChild);e.appendChild(img(TEAL,'hf-palmi hf-palm--flip'))})}
-  function foot(){var f=document.querySelector('[id^="tile-footer"]');if(f&&f.querySelector('.hf-foot-run')){credit(f.querySelector('.hf-foot-run').parentNode);return}if(!f)return;
+  function foot(){social();var f=document.querySelector('[id^="tile-footer"]');if(f&&f.querySelector('.hf-foot-run')){credit(f.querySelector('.hf-foot-run').parentNode);return}if(!f)return;
     var box=f.querySelector('.ins-tile__wrap')||f;var d=document.createElement('div');d.className='hf-foot-run';
     d.appendChild(img(PINK,''));d.insertAdjacentHTML('beforeend','<div><b>'+TAG+'</b><small>'+RISK+'</small></div>');d.appendChild(img(TEAL,'hf-palm--flip'));box.appendChild(d)
     credit(box)}
+  // Social links (2026-11-16): Instagram + TikTok icons under "Contact us" in the footer, new tab.
+  var SOCIAL=[
+    ['Instagram','https://www.instagram.com/hastaflipflops/','<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>'],
+    ['TikTok','https://www.tiktok.com/@hastaflipflops','<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="currentColor"><path d="M12.53.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>']];
+  function social(){var f=document.querySelector('[id^="tile-footer"]');if(!f||f.querySelector('.hf-social'))return;
+    var c=f.querySelector('.ins-tile__contacts');if(!c)return;var d=document.createElement('div');d.className='hf-social';
+    d.innerHTML=SOCIAL.map(function(x){return '<a href="'+x[1]+'" target="_blank" rel="noopener" aria-label="Hasta Flip Flops on '+x[0]+'" title="'+x[0]+'">'+x[2]+'</a>'}).join('');
+    c.parentNode.insertBefore(d,c.nextSibling)}
   // Developer credit (Zach's suggestion, 2026-11-14): one quiet line under the tagline, email is a mailto.
   function credit(box){if(box.querySelector('.hf-credit'))return;var p=document.createElement('p');p.className='hf-credit';
     p.innerHTML='Developed by Krausey’s Development. Want a website like this? Email <a href="mailto:krauseysdevelopment@gmail.com?subject=Website%20inquiry">krauseysdevelopment@gmail.com</a>';box.appendChild(p)}
