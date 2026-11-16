@@ -619,7 +619,7 @@
   function hero(){Array.prototype.forEach.call(document.querySelectorAll('.hfp-hero'),palms);
     Array.prototype.forEach.call(document.querySelectorAll('.hfp-eyebrow'),function(e){if(e.dataset.hfPalm)return;e.dataset.hfPalm='1';
       e.insertBefore(img(PINK,'hf-palmi'),e.firstChild);e.appendChild(img(TEAL,'hf-palmi hf-palm--flip'))})}
-  function foot(){social();var f=document.querySelector('[id^="tile-footer"]');if(f&&f.querySelector('.hf-foot-run')){credit(f.querySelector('.hf-foot-run').parentNode);return}if(!f)return;
+  function foot(){social();contactSocial();var f=document.querySelector('[id^="tile-footer"]');if(f&&f.querySelector('.hf-foot-run')){credit(f.querySelector('.hf-foot-run').parentNode);return}if(!f)return;
     var box=f.querySelector('.ins-tile__wrap')||f;var d=document.createElement('div');d.className='hf-foot-run';
     d.appendChild(img(PINK,''));d.insertAdjacentHTML('beforeend','<div><b>'+TAG+'</b><small>'+RISK+'</small></div>');d.appendChild(img(TEAL,'hf-palm--flip'));box.appendChild(d)
     credit(box)}
@@ -632,6 +632,12 @@
     var c=f.querySelector('.ins-tile__contacts');if(!c)return;var d=document.createElement('div');d.className='hf-social';
     d.innerHTML=SOCIAL.map(function(x){return '<a href="'+x[1]+'" target="_blank" rel="noopener" aria-label="Hasta Flip Flops on '+x[0]+'" title="'+x[0]+'">'+x[2]+'</a>'}).join('');
     c.parentNode.insertBefore(d,c.nextSibling)}
+  // Contact page "Follow our socials" card (2026-11-16), right under the two email cards; same SOCIAL list.
+  function contactSocial(){if(!/^\/contact\/?$/.test(location.pathname))return;var pg=document.querySelector('#tile-custom-code-wRKTJZ .hf-page');if(!pg||pg.querySelector('.hf-follow'))return;
+    var cards=pg.querySelector('.hf-cards');if(!cards)return;var d=document.createElement('section');d.className='hf-follow';d.setAttribute('aria-label','Follow Hasta Flip Flops');
+    d.innerHTML='<div class="hf-follow__text"><p class="hf-kicker">Follow our socials</p><p class="hf-follow__line">New colors, restocks and beach days. Come say hi.</p></div><div class="hf-follow__btns">'+
+      SOCIAL.map(function(x){return '<a href="'+x[1]+'" target="_blank" rel="noopener" aria-label="Hasta Flip Flops on '+x[0]+'">'+x[2]+'<span>'+x[0]+'</span></a>'}).join('')+'</div>';
+    cards.parentNode.insertBefore(d,cards.nextSibling)}
   // Developer credit (Zach's suggestion, 2026-11-14): one quiet line under the tagline, email is a mailto.
   function credit(box){if(box.querySelector('.hf-credit'))return;var p=document.createElement('p');p.className='hf-credit';
     p.innerHTML='Developed by Krausey’s Development. Want a website like this? Email <a href="mailto:krauseysdevelopment@gmail.com?subject=Website%20inquiry">krauseysdevelopment@gmail.com</a>';box.appendChild(p)}

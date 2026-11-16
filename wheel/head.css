@@ -158,3 +158,13 @@ html body .hf-social a{display:inline-flex;align-items:center;justify-content:ce
 html body .hf-social a:hover{color:#F607B0!important;border-color:#F607B0;background:rgba(246,7,176,.08)}
 html body .hf-social a:nth-child(2):hover,html body .hf-social a:nth-child(3):hover{color:#13C2BB!important;border-color:#13C2BB;background:rgba(19,194,187,.08)}
 html body .hf-social a:nth-child(3):hover{color:#F607B0!important;border-color:#F607B0;background:rgba(246,7,176,.08)}
+/* Contact page "Follow our socials" card (site-extras contactSocial()), matches .hf-card. */
+html body .hf-follow{position:relative;overflow:hidden;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px 24px;margin:-20px 0 38px;padding:29px 24px 24px;background:#fff;border:1px solid rgba(14,14,17,.12);border-radius:16px}
+html body .hf-follow::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,#F607B0,#13C2BB)}
+html body .hf-follow .hf-kicker{margin:0 0 6px}
+html body .hf-follow__line{margin:0;color:#3D3A46;font-size:1rem}
+html body .hf-follow__btns{display:flex;flex-wrap:wrap;gap:10px}
+html body .hf-follow__btns a{display:inline-flex;align-items:center;gap:8px;padding:10px 18px 10px 14px;border-radius:999px;background:#0E0E11;color:#fff!important;font-weight:800;font-size:.92rem;text-decoration:none!important;transition:background .15s,color .15s}
+html body .hf-follow__btns a svg{width:20px;height:20px}
+html body .hf-follow__btns a:hover{background:#F607B0;color:#0E0E11!important}
+html body .hf-follow__btns a:nth-child(2):hover{background:#13C2BB}
