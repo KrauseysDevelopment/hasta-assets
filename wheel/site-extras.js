@@ -6,12 +6,13 @@
   var MERCH=[
     {n:'Hasta Air Freshener',m:'$6.99',h:'/products/hasta-air-freshener',i:'https://d2j6dbq0eux0bg.cloudfront.net/images/142623305/products/871125111/6373581719.jpg'},
     {n:'Hasta Stickers',m:'18 designs &middot; from $3',h:'/products/stickers',i:'https://d2j6dbq0eux0bg.cloudfront.net/images/142623305/products/871054959/6373584136.jpg'},
+    {n:'Hasta Fan',m:'$5',h:'/products/hasta-fans',i:'https://d2j6dbq0eux0bg.cloudfront.net/images/142623305/products/874633242/6368190043.jpg'},
     {n:'Hasta Tote Bag',m:'$19.99',h:'/products/hasta-tote-bags-874635836',i:'https://d2j6dbq0eux0bg.cloudfront.net/images/142623305/products/874635836/6368191141.jpg'},
     {n:'Hasta T-Shirts',m:'From $24.99',h:'/products/t-shirts',i:'https://d2j6dbq0eux0bg.cloudfront.net/images/142623305/products/874635877/6368223365.jpg'},
     {n:'Hasta Gift Card',m:'Any amount &middot; mailed',h:'/products/hasta-gift-card',i:'https://d2j6dbq0eux0bg.cloudfront.net/images/142623305/products/877908455/6409394436.png'}
   ];
   // Hidden categories: the two inventory bins, plus an empty duplicate "Tote Bag" (the totes live in "Hasta Tote Bags").
-  var BIN_CATS=['208164304','208164334','208164089','208661035'], BIN_SLUGS=['adult-sole','kid-strap','tote-bag','hasta-fans'];  // 208661035 = Hasta Fans, hidden while priced $0.00 (remove when Zach prices it)
+  var BIN_CATS=['208164304','208164334','208164089'], BIN_SLUGS=['adult-sole','kid-strap','tote-bag'];  // Hasta Fans (208661035) unhidden 2026-11-16 once priced at $5
   var CSS=BIN_CATS.map(function(c){return '.grid-category--id-'+c}).join(',')+'{display:none!important}'+
     '#hf-merch{margin:56px auto 0}#hf-merch .hfm-head{text-align:center;margin:0 20px 6px}'+
     '#hf-merch .hfm-eyebrow{margin:0 0 8px;font-size:.74rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#13C2BB}'+
@@ -37,7 +38,7 @@
   /* 3. Header "Shop" dropdown (desktop hover/focus) + the same links under Shop in the mobile menu. */
   var SHOP=[
     ['Flip flop favorites','/shop-pairs'],['Build your own pair','/#wheel'],
-    ['T-Shirts','/products/t-shirts'],['Stickers','/products/stickers'],['Air Fresheners','/products/air-fresheners'],
+    ['T-Shirts','/products/t-shirts'],['Stickers','/products/stickers'],['Air Fresheners','/products/air-fresheners'],['Fans','/products/hasta-fans'],
     ['Tote Bags','/products/hasta-tote-bags'],['Gift Cards','/products/hasta-gift-card'],['Shop all','/shop-pairs']
   ];
   function menuHtml(cls){return SHOP.map(function(s){return '<a class="'+cls+'" href="'+s[1]+'">'+s[0]+'</a>'}).join('')}
@@ -499,7 +500,7 @@
    - Copy: one number (330 = 15 soles x 22 straps); no supplier / molded / Pantone / PMS; home "The Fit" card;
      "Pick your sole" (spin buttons are gone). Text lives in editor sections, so it's patched here until a publish.
    - Top scrolling banner on the home page only.
-   - Hasta Fans ($0.00) hidden until priced: product card + Add to Bag.
+   - (Hasta Fans was hidden here until priced; on sale since 2026-11-16.)
    - Checkout: United States first in every country list, and chosen by default (US-only shipping for now).
    =================================================================================================== */
 (function(){
@@ -511,9 +512,7 @@
     'html .ins-tile--announcement-bar .ins-tile__text p::after{content:"'+new Array(9).join(MARQ)+'"}'+
     '@media(prefers-reduced-motion:reduce){html .ins-tile--announcement-bar .ins-tile__text p::after{content:"Spin the wheel  ✦  15 sole colors  ✦  22 strap colors  ✦  330 combos  ✦  Wear Hasta Run Fasta™  ✦  Made in the Florida sunshine ☀"}}'+
     'html .ec-cart--empty .ec-cart__message::after{content:"Your bag is empty.\\A\\A Spin the wheel and build a pair that is yours alone \\2014 15 colors, 330 combinations, made in the Florida sunshine."}'+
-    '.grid-product--id-'+FANS+'{display:none!important}'+
-    '.ec-store__product-page--'+FANS+' .details-product-purchase__add-to-bag,.ec-store__product-page--'+FANS+' .details-product-purchase__checkout,.ec-store__product-page--'+FANS+' .product-details__product-price{display:none!important}'+
-    '.ec-store__product-page--'+FANS+' .product-details__sidebar::after{content:"Coming soon.";display:block;margin-top:14px;font-weight:800;color:#C4008A}';
+    '';  // Hasta Fans 'Coming soon' hide removed 2026-11-16: priced at $5 and on sale.
   function css(){if(document.getElementById('hf-fix-css'))return;var s=document.createElement('style');s.id='hf-fix-css';s.textContent=CSS;document.head.appendChild(s)}
   function home(){document.documentElement.classList.toggle('hf-home',location.pathname.replace(/\/+$/,'')==='')}
   function footer(){
